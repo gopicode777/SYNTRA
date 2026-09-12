@@ -1,0 +1,81 @@
+/* ============================================================
+   NEXA WORKSPACE — DESIGN TOKENS
+   Mirrored 1:1 from index.html (SYNTRA landing page) so the
+   workspace/desktop always matches the brand's blue + white
+   identity. Do not hand-edit colors here without also checking
+   index.html — this file is the single source of truth for the
+   workspace theme.
+   ============================================================ */
+:root{
+  /* ---- light (default) ---- */
+  --bg:#ffffff;
+  --bg-soft:#f5f9fd;
+  --bg-panel:#ffffff;
+  --bg-panel-2:#f3f7fc;
+  --bg-raised:#ffffff;
+  --bg-dark:#0b1526;
+
+  --line:rgba(13,29,56,0.08);
+  --line-strong:rgba(13,29,56,0.15);
+
+  --ink:#0b1526;
+  --ink-dim:#57667e;
+  --ink-faint:#93a1b8;
+
+  --blue:#2563eb;
+  --blue-2:#5b9bff;
+  --blue-deep:#1741b8;
+  --blue-wash:rgba(37,99,235,0.08);
+  --blue-wash-strong:rgba(37,99,235,0.16);
+
+  --amber:#e08a2c;
+  --amber-wash:rgba(224,138,44,0.12);
+
+  --danger:#e25b4d;
+  --danger-wash:rgba(226,91,77,0.10);
+
+  --radius-s:10px;
+  --radius-m:16px;
+  --radius-l:28px;
+
+  --ease:cubic-bezier(.16,.84,.32,1);
+  --dur-s:.35s;
+  --dur-m:.7s;
+
+  --shadow-sm:0 1px 2px rgba(13,29,56,0.05);
+  --shadow-md:0 16px 40px rgba(13,29,56,0.08);
+  --shadow-blue:0 14px 34px rgba(37,99,235,0.16);
+
+  --sidebar-w:272px;
+  --topbar-h:64px;
+}
+
+/* ---- dark mode: same hues, inverted surfaces (matches landing --bg-dark) ---- */
+body.dark{
+  --bg:#0b1526;
+  --bg-soft:#0e1c33;
+  --bg-panel:#111f38;
+  --bg-panel-2:#0e1c33;
+  --bg-raised:#152848;
+  --bg-dark:#060b16;
+
+  --line:rgba(255,255,255,0.08);
+  --line-strong:rgba(255,255,255,0.14);
+
+  --ink:#eef3fb;
+  --ink-dim:#9fb0c9;
+  --ink-faint:#61708a;
+
+  --blue:#5b9bff;
+  --blue-2:#7fb2ff;
+  --blue-deep:#2563eb;
+  --blue-wash:rgba(91,155,255,0.14);
+  --blue-wash-strong:rgba(91,155,255,0.22);
+
+  --amber:#f2b155;
+  --amber-wash:rgba(242,177,85,0.14);
+
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.25);
+  --shadow-md:0 16px 40px rgba(0,0,0,0.35);
+  --shadow-blue:0 14px 34px rgba(37,99,235,0.28);
+}
