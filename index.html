@@ -411,12 +411,12 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
 .transition-overlay.active .logo-mark{transform:scale(1);animation:overlayLogoFloat 1.6s ease-in-out .6s infinite;}
 @keyframes overlayLogoFloat{0%,100%{transform:scale(1) translateY(0);}50%{transform:scale(1.08) translateY(-8px);}}
 
-/* initial page-load preloader — single logo image, smooth intro + float, ~15s hold */
-.page-loader{position:fixed;inset:0;z-index:10500;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .8s var(--ease), visibility .8s;}
+/* initial page-load preloader — single logo image, smooth fade + gentle float, hides as soon as the page is actually ready */
+.page-loader{position:fixed;inset:0;z-index:10500;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s var(--ease), visibility .5s;}
 .page-loader::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, rgba(91,33,201,0.12), transparent 65%);}
-.page-loader-mark{width:96px;height:96px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));opacity:0;animation:loaderIntro .9s var(--ease) forwards, loaderFloat 2.4s ease-in-out .9s infinite;}
-@keyframes loaderIntro{0%{transform:scale(.72);opacity:0;}100%{transform:scale(1);opacity:1;}}
-@keyframes loaderFloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-14px) scale(1.05);}}
+.page-loader-mark{width:88px;height:88px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));opacity:0;animation:loaderFadeIn .5s var(--ease) forwards, loaderFloat 2.4s ease-in-out .5s infinite;}
+@keyframes loaderFadeIn{to{opacity:1;}}
+@keyframes loaderFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 .page-loader.done{opacity:0;visibility:hidden;pointer-events:none;}
 @media(prefers-reduced-motion:reduce){.page-loader-mark{animation:none;opacity:1;}.transition-overlay .logo-mark{animation:none;}}
 
@@ -971,14 +971,31 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
 (function(){
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- initial page-load preloader (single floating logo, holds ~15s) ---------- */
+  /* ---------- initial page-load preloader (single floating logo) ----------
+     Hides as soon as the page's resources are actually ready, instead of a
+     fixed wait. A short minimum keeps it from flashing on fast loads, and a
+     safety-net cap makes sure it never gets stuck if 'load' is delayed. */
   var pageLoader = document.getElementById('pageLoader');
   if(pageLoader){
+    var loaderStart = Date.now();
+    var minShow = reduced ? 0 : 400;
+    var maxWait = reduced ? 400 : 3000;
+    var loaderDone = false;
     var hideLoader = function(){
-      pageLoader.classList.add('done');
-      document.body.classList.add('loaded');
+      if(loaderDone) return;
+      loaderDone = true;
+      var wait = Math.max(0, minShow - (Date.now() - loaderStart));
+      setTimeout(function(){
+        pageLoader.classList.add('done');
+        document.body.classList.add('loaded');
+      }, wait);
     };
-    setTimeout(hideLoader, reduced ? 400 : 15000);
+    if(document.readyState === 'complete'){
+      hideLoader();
+    } else {
+      window.addEventListener('load', hideLoader);
+    }
+    setTimeout(hideLoader, maxWait);
   } else {
     document.body.classList.add('loaded');
   }

@@ -440,9 +440,19 @@ svg.ic{width:17px;height:17px;stroke:currentColor;stroke-width:1.75;fill:none;st
   .modal-nav{width:100%;display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid var(--panel-border);padding:10px;}
   .modal-nav-item{white-space:nowrap;}
 }
+
+/* initial page-load preloader — single logo, smooth fade + gentle float, hides as soon as the page is actually ready */
+.page-loader{position:fixed;inset:0;z-index:10500;background:var(--bg-0);display:flex;align-items:center;justify-content:center;transition:opacity .5s cubic-bezier(.16,.84,.32,1), visibility .5s;}
+.page-loader-mark{width:72px;height:72px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));opacity:0;animation:loaderFadeIn .5s cubic-bezier(.16,.84,.32,1) forwards, loaderFloat 2.4s ease-in-out .5s infinite;}
+@keyframes loaderFadeIn{to{opacity:1;}}
+@keyframes loaderFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.page-loader.done{opacity:0;visibility:hidden;pointer-events:none;}
+@media(prefers-reduced-motion:reduce){.page-loader-mark{animation:none;opacity:1;}}
 </style>
 </head>
 <body>
+
+<div class="page-loader" id="pageLoader" aria-hidden="true"><img src="assets/brand/logo-mark.png" alt="" class="page-loader-mark"></div>
 
 <div class="app" id="appRoot">
 
@@ -845,6 +855,34 @@ svg.ic{width:17px;height:17px;stroke:currentColor;stroke-width:1.75;fill:none;st
     </div>
   </div>
 </div>
+
+<script>
+(function(){
+  /* ---------- initial page-load preloader (floating logo) ----------
+     Hides as soon as the page's resources are actually ready, instead of a
+     fixed wait. A short minimum keeps it from flashing on fast loads, and a
+     safety-net cap makes sure it never gets stuck if 'load' is delayed. */
+  var pageLoader = document.getElementById('pageLoader');
+  if(!pageLoader) return;
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var loaderStart = Date.now();
+  var minShow = reduced ? 0 : 400;
+  var maxWait = reduced ? 400 : 3000;
+  var loaderDone = false;
+  var hideLoader = function(){
+    if(loaderDone) return;
+    loaderDone = true;
+    var wait = Math.max(0, minShow - (Date.now() - loaderStart));
+    setTimeout(function(){ pageLoader.classList.add('done'); }, wait);
+  };
+  if(document.readyState === 'complete'){
+    hideLoader();
+  } else {
+    window.addEventListener('load', hideLoader);
+  }
+  setTimeout(hideLoader, maxWait);
+})();
+</script>
 
 <script>
 (function(){

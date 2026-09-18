@@ -700,8 +700,9 @@
   /* ---------- initial page-load preloader (floating logo) ---------- */
   .page-loader{ position:fixed; inset:0; z-index:10500; background:var(--bg-0); display:flex; align-items:center; justify-content:center; transition:opacity .3s cubic-bezier(.16,.84,.32,1), visibility .3s; }
   .page-loader::before{ content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 45%, var(--accent-a-soft), transparent 65%); }
-  .page-loader-mark{ width:88px; height:88px; object-fit:contain; position:relative; z-index:1; filter:drop-shadow(0 14px 30px rgba(91,155,255,0.4)); animation:loaderFloat 1.6s ease-in-out infinite; }
-  @keyframes loaderFloat{ 0%,100%{ transform:translateY(0) scale(1); opacity:1; } 50%{ transform:translateY(-14px) scale(1.08); opacity:.85; } }
+  .page-loader-mark{ width:88px; height:88px; object-fit:contain; position:relative; z-index:1; filter:drop-shadow(0 14px 30px rgba(91,155,255,0.4)); opacity:0; animation:loaderFadeIn .5s cubic-bezier(.16,.84,.32,1) forwards, loaderFloat 2.4s ease-in-out .5s infinite; }
+  @keyframes loaderFadeIn{ to{ opacity:1; } }
+  @keyframes loaderFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
   .page-loader.done{ opacity:0; visibility:hidden; pointer-events:none; }
 
   /* ---------- page-transition overlay (navigating back to A2ZNexus) ---------- */
@@ -1081,13 +1082,29 @@
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
 
-  /* ---------- initial page-load preloader (floating logo) ---------- */
+  /* ---------- initial page-load preloader (floating logo) ----------
+     Hides as soon as the page's resources are actually ready, instead of a
+     fixed wait. A short minimum keeps it from flashing on fast loads, and a
+     safety-net cap makes sure it never gets stuck if 'load' is delayed. */
   (function(){
     var pageLoader = document.getElementById('pageLoader');
     if(!pageLoader) return;
-    var hideLoader = function(){ pageLoader.classList.add('done'); };
-    window.addEventListener('load', function(){ setTimeout(hideLoader, prefersReduced?0:200); });
-    setTimeout(hideLoader, 3200); // safety net if 'load' is delayed
+    var loaderStart = Date.now();
+    var minShow = prefersReduced ? 0 : 400;
+    var maxWait = prefersReduced ? 400 : 3000;
+    var loaderDone = false;
+    var hideLoader = function(){
+      if(loaderDone) return;
+      loaderDone = true;
+      var wait = Math.max(0, minShow - (Date.now() - loaderStart));
+      setTimeout(function(){ pageLoader.classList.add('done'); }, wait);
+    };
+    if(document.readyState === 'complete'){
+      hideLoader();
+    } else {
+      window.addEventListener('load', hideLoader);
+    }
+    setTimeout(hideLoader, maxWait);
   })();
 
   /* ---------- page transition back to A2ZNexus (floating logo) ---------- */
