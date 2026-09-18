@@ -859,58 +859,71 @@
   .panel-chips {
     display:flex !important;
     align-items:center !important;
-    gap:24px !important;
+    flex-wrap:nowrap !important;
+    gap:18px !important;
     margin-top:38px !important;
   }
   .panel-chip {
     display:inline-flex !important;
     align-items:center !important;
     gap:10px !important;
-    padding:0 !important;
+    height:43px !important;
+    padding:0 13px 0 0 !important;
     border:0 !important;
-    background:transparent !important;
-    backdrop-filter:none !important;
-    border-radius:0 !important;
+    background:rgba(246,250,255,.82) !important;
+    border-radius:23px !important;
     color:#405775 !important;
     font-size:14px !important;
     font-weight:600 !important;
     white-space:nowrap !important;
+    box-shadow:none !important;
+    backdrop-filter:none !important;
   }
   .panel-chip .dot {
     width:43px !important;
     height:43px !important;
     border-radius:50% !important;
-    background:#e9f5ff !important;
+    background:#e8f4ff !important;
     box-shadow:none !important;
     position:relative !important;
+    flex:none !important;
   }
   .panel-chip .dot::after {
     content:"" !important;
     position:absolute !important;
-    inset:11px !important;
-    border-radius:3px !important;
-    background:#3994e9 !important;
-    box-shadow:none !important;
+    left:12px !important;
+    top:11px !important;
+    width:19px !important;
+    height:21px !important;
+    border-radius:2px !important;
+    background:#3c98e9 !important;
+    box-shadow:inset 0 -3px 0 rgba(255,255,255,.22) !important;
   }
   .panel-chip .dot-b {
     background:#f1eaff !important;
   }
   .panel-chip .dot-b::after {
-    inset:10px !important;
-    width:19px !important;
-    height:19px !important;
+    left:11px !important;
+    top:11px !important;
+    width:20px !important;
+    height:20px !important;
     border-radius:50% !important;
     background:transparent !important;
     border:3px solid #8553df !important;
+    box-shadow:none !important;
   }
   .panel-chip .dot-c {
-    background:#e6faef !important;
+    background:#e5faef !important;
   }
   .panel-chip .dot-c::after {
-    inset:11px !important;
+    left:13px !important;
+    top:10px !important;
+    width:17px !important;
+    height:22px !important;
     background:#28c876 !important;
-    clip-path:polygon(45% 0,100% 0,63% 42%,100% 42%,35% 100%,48% 54%,0 54%) !important;
+    clip-path:polygon(45% 0,100% 0,62% 42%,100% 42%,34% 100%,47% 54%,0 54%) !important;
     border-radius:0 !important;
+    box-shadow:none !important;
   }
 
   /* RIGHT SIDE — screenshot-style floating login card */
@@ -1072,12 +1085,72 @@
     .companion-panel::after { width:150px !important; height:150px !important; }
     .panel-copy { left:24px !important; top:61% !important; max-width:calc(100% - 48px) !important; }
     .panel-copy .panel-tag { font-size:34px !important; letter-spacing:-1.4px !important; }
-    .panel-chips { gap:16px !important; flex-wrap:wrap !important; }
+    .panel-chips { gap:12px !important; flex-wrap:wrap !important; }
     .panel-chip { font-size:12px !important; }
     .panel-chip .dot { width:36px !important; height:36px !important; }
     .auth-card { padding:34px 24px !important; }
     .auth-heading { font-size:27px !important; }
   }
+
+
+/* EXACT REFERENCE CHIPS — preserve old markup/functionality, only visual treatment */
+.panel-chips{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  gap:18px !important;
+  margin-top:38px !important;
+}
+.panel-chip{
+  position:relative !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  height:44px !important;
+  padding:0 18px 0 0 !important;
+  border:0 !important;
+  border-radius:999px !important;
+  background:#f7faff !important;
+  color:#29486d !important;
+  font-size:14px !important;
+  font-weight:600 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+}
+.panel-chip .dot{
+  position:relative !important;
+  display:grid !important;
+  place-items:center !important;
+  width:44px !important;
+  height:44px !important;
+  min-width:44px !important;
+  border-radius:50% !important;
+  flex:none !important;
+  background:#eaf4ff !important;
+  color:#3994e9 !important;
+  box-shadow:none !important;
+  animation:none !important;
+}
+.panel-chip .dot svg{
+  display:block !important;
+  width:20px !important;
+  height:20px !important;
+}
+.panel-chip .dot-b{
+  background:#f0e8ff !important;
+  color:#8553df !important;
+}
+.panel-chip .dot-c{
+  background:#e6faef !important;
+  color:#28c876 !important;
+}
+.panel-chip .dot::after{content:none !important;}
+@media (max-width:900px){
+  .panel-chips{flex-wrap:wrap !important; gap:12px !important;}
+}
 </style>
 </head>
 <body>
@@ -1121,9 +1194,33 @@
           <span class="tag-highlight">Infinite Possibilities.</span>
         </span>
         <div class="panel-chips" aria-hidden="true">
-          <span class="panel-chip"><i class="dot"></i>Documents</span>
-          <span class="panel-chip"><i class="dot dot-b"></i>Research</span>
-          <span class="panel-chip"><i class="dot dot-c"></i>Automation</span>
+          <span class="panel-chip">
+            <i class="dot">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 3.5h7l3.5 3.5v13H7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M14 3.5V8h4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M10 12h5M10 15.5h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </i>
+            Documents
+          </span>
+          <span class="panel-chip">
+            <i class="dot dot-b">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="10.5" cy="10.5" r="5.7" fill="none" stroke="currentColor" stroke-width="2.1"/>
+                <path d="m15 15 4.4 4.4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+              </svg>
+            </i>
+            Research
+          </span>
+          <span class="panel-chip">
+            <i class="dot dot-c">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13.8 2.5 7.1 12.1h4.7l-1.6 9.2 7.2-10.5h-4.6z" fill="currentColor"/>
+              </svg>
+            </i>
+            Automation
+          </span>
         </div>
       </div>
 
