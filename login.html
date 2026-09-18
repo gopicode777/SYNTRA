@@ -1151,6 +1151,612 @@
 @media (max-width:900px){
   .panel-chips{flex-wrap:wrap !important; gap:12px !important;}
 }
+
+  /* ============================================================
+     PREMIUM LOGIN MOTION PACK
+     - left logo bounce + floating glow
+     - cinematic staggered text entrance
+     - chip pop-in / hover lift
+     - right-side card entrance
+     - field focus motion
+     - button shine / magnetic hover
+     - smooth page exit animation
+     ============================================================ */
+
+  :root{
+    --motion-ease: cubic-bezier(.16,.84,.32,1);
+    --spring: cubic-bezier(.34,1.56,.64,1);
+  }
+
+  /* ---------- cinematic page entrance ---------- */
+  .stage{
+    perspective: 1400px;
+  }
+
+  .companion-panel{
+    isolation:isolate;
+  }
+
+  .auth-panel{
+    perspective: 1200px;
+  }
+
+  /* ---------- animated logo ---------- */
+  .companion-panel::after{
+    display:none !important;
+  }
+
+  .logo-motion{
+    position:absolute;
+    z-index:2;
+    left:50%;
+    top:30.2%;
+    width:205px;
+    height:205px;
+    transform:translate(-50%,-50%);
+    display:grid;
+    place-items:center;
+    pointer-events:none;
+    opacity:0;
+  }
+
+  .animated-brand-logo{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    filter:
+      drop-shadow(0 18px 22px rgba(48,116,230,.16))
+      drop-shadow(0 6px 34px rgba(79,119,235,.22));
+    transform:translateY(70px) scale(.62) rotate(-7deg);
+    opacity:0;
+    will-change:transform, opacity, filter;
+  }
+
+  .logo-aura{
+    position:absolute;
+    width:72%;
+    height:72%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(72,139,245,.24), rgba(72,139,245,0) 68%);
+    filter:blur(10px);
+    transform:scale(.55);
+    opacity:0;
+  }
+
+  .page.ready .logo-motion{
+    opacity:1;
+  }
+
+  .page.ready .animated-brand-logo{
+    animation:
+      logo-slam-in 950ms var(--spring) .05s forwards,
+      logo-breathe 3.8s ease-in-out 1.05s infinite;
+  }
+
+  .page.ready .logo-aura{
+    animation:
+      aura-pop 900ms var(--spring) .05s forwards,
+      aura-pulse 3.8s ease-in-out 1s infinite;
+  }
+
+  @keyframes logo-slam-in{
+    0%{opacity:0;transform:translateY(70px) scale(.62) rotate(-7deg);}
+    42%{opacity:1;transform:translateY(-15px) scale(1.09) rotate(2deg);}
+    62%{transform:translateY(7px) scale(.96) rotate(-1deg);}
+    78%{transform:translateY(-4px) scale(1.02) rotate(.4deg);}
+    100%{opacity:1;transform:translateY(0) scale(1) rotate(0);}
+  }
+
+  @keyframes logo-breathe{
+    0%,100%{transform:translateY(0) scale(1) rotate(0);}
+    50%{transform:translateY(-9px) scale(1.018) rotate(.7deg);}
+  }
+
+  @keyframes aura-pop{
+    0%{opacity:0;transform:scale(.55);}
+    55%{opacity:.95;transform:scale(1.18);}
+    100%{opacity:.7;transform:scale(1);}
+  }
+
+  @keyframes aura-pulse{
+    0%,100%{opacity:.62;transform:scale(1);}
+    50%{opacity:.9;transform:scale(1.12);}
+  }
+
+  /* ---------- left copy: word/line reveal ---------- */
+  .panel-copy{
+    overflow:visible !important;
+  }
+
+  .page:not(.ready) .panel-copy{
+    opacity:0 !important;
+  }
+
+  .page.ready .panel-copy .tag-line{
+    opacity:0;
+    transform:translate3d(-38px,22px,0) skewX(-5deg);
+    animation: text-reveal 720ms var(--motion-ease) .42s forwards;
+  }
+
+  .page.ready .panel-copy .tag-highlight{
+    opacity:0;
+    transform:translate3d(-28px,28px,0) scale(.94);
+    clip-path:inset(0 100% 0 0);
+    animation:
+      highlight-reveal 900ms var(--motion-ease) .64s forwards,
+      highlight-shimmer 4s ease-in-out 1.7s infinite;
+  }
+
+  @keyframes text-reveal{
+    0%{opacity:0;transform:translate3d(-38px,22px,0) skewX(-5deg);}
+    60%{opacity:1;transform:translate3d(7px,-3px,0) skewX(0);}
+    100%{opacity:1;transform:translate3d(0,0,0) skewX(0);}
+  }
+
+  @keyframes highlight-reveal{
+    0%{opacity:0;transform:translate3d(-28px,28px,0) scale(.94);clip-path:inset(0 100% 0 0);}
+    65%{opacity:1;transform:translate3d(4px,-3px,0) scale(1.015);clip-path:inset(0 0 0 0);}
+    100%{opacity:1;transform:translate3d(0,0,0) scale(1);clip-path:inset(0 0 0 0);}
+  }
+
+  @keyframes highlight-shimmer{
+    0%,72%,100%{background-position:0% 50%;}
+    85%{background-position:100% 50%;}
+  }
+
+  /* ---------- left feature chips ---------- */
+  .page:not(.ready) .panel-chips{
+    opacity:0 !important;
+  }
+
+  .page.ready .panel-chip{
+    opacity:0;
+    transform:translateY(24px) scale(.86);
+    animation:chip-in 620ms var(--spring) forwards;
+    will-change:transform, opacity;
+  }
+
+  .page.ready .panel-chip:nth-child(1){animation-delay:1.02s;}
+  .page.ready .panel-chip:nth-child(2){animation-delay:1.15s;}
+  .page.ready .panel-chip:nth-child(3){animation-delay:1.28s;}
+
+  @keyframes chip-in{
+    0%{opacity:0;transform:translateY(24px) scale(.86);}
+    65%{opacity:1;transform:translateY(-4px) scale(1.035);}
+    100%{opacity:1;transform:translateY(0) scale(1);}
+  }
+
+  .panel-chip{
+    transition:
+      transform 280ms var(--motion-ease),
+      box-shadow 280ms var(--motion-ease),
+      background 280ms ease;
+  }
+
+  .panel-chip:hover{
+    transform:translateY(-5px) scale(1.025) !important;
+    background:#f2f7ff !important;
+    box-shadow:0 12px 26px rgba(42,91,150,.10);
+  }
+
+  .panel-chip .dot{
+    transition:transform 300ms var(--spring), box-shadow 300ms ease;
+  }
+
+  .panel-chip:hover .dot{
+    transform:rotate(-8deg) scale(1.08);
+    box-shadow:0 8px 20px rgba(58,148,233,.14);
+  }
+
+  /* ---------- right card cinematic entrance ---------- */
+  .page:not(.ready) .auth-card{
+    opacity:0 !important;
+  }
+
+  .page.ready .auth-card{
+    opacity:1 !important;
+    transform:translate3d(55px,18px,0) rotateY(-7deg) scale(.965) !important;
+    animation:card-premium-in 1050ms var(--motion-ease) .14s forwards !important;
+    transform-origin:center right;
+  }
+
+  @keyframes card-premium-in{
+    0%{opacity:0;transform:translate3d(55px,18px,0) rotateY(-7deg) scale(.965) !important;}
+    55%{opacity:1;transform:translate3d(-5px,-2px,0) rotateY(.7deg) scale(1.008) !important;}
+    100%{opacity:1;transform:translate3d(0,0,0) rotateY(0) scale(1) !important;}
+  }
+
+  /* ---------- every login item enters separately ---------- */
+  .page:not(.ready) .auth-card .auth-heading,
+  .page:not(.ready) .auth-card .auth-sub,
+  .page:not(.ready) .auth-card .social-row,
+  .page:not(.ready) .auth-card .divider,
+  .page:not(.ready) .auth-card .field,
+  .page:not(.ready) .auth-card .forgot,
+  .page:not(.ready) .auth-card .submit-btn,
+  .page:not(.ready) .auth-card .guest-link,
+  .page:not(.ready) .auth-card .signup-row{
+    opacity:0 !important;
+  }
+
+  .page.ready .auth-card .auth-heading,
+  .page.ready .auth-card .auth-sub,
+  .page.ready .auth-card .social-row,
+  .page.ready .auth-card .divider,
+  .page.ready .auth-card .field,
+  .page.ready .auth-card .forgot,
+  .page.ready .auth-card .submit-btn,
+  .page.ready .auth-card .guest-link,
+  .page.ready .auth-card .signup-row{
+    animation:form-item-in 620ms var(--motion-ease) forwards;
+  }
+
+  .page.ready .auth-card .auth-heading{animation-delay:.36s;}
+  .page.ready .auth-card .auth-sub{animation-delay:.43s;}
+  .page.ready .auth-card .social-row{animation-delay:.50s;}
+  .page.ready .auth-card .divider{animation-delay:.59s;}
+  .page.ready .auth-card .field:nth-of-type(1){animation-delay:.66s;}
+  .page.ready .auth-card .field:nth-of-type(2){animation-delay:.73s;}
+  .page.ready .auth-card .forgot{animation-delay:.80s;}
+  .page.ready .auth-card .submit-btn{animation-delay:.88s;}
+  .page.ready .auth-card .guest-link{animation-delay:.95s;}
+  .page.ready .auth-card .signup-row{animation-delay:1.02s;}
+
+  @keyframes form-item-in{
+    0%{opacity:0;transform:translate3d(0,18px,0) scale(.985);}
+    65%{opacity:1;transform:translate3d(0,-2px,0) scale(1.002);}
+    100%{opacity:1;transform:translate3d(0,0,0) scale(1);}
+  }
+
+  /* ---------- social buttons ---------- */
+  .social-btn{
+    position:relative;
+    overflow:hidden;
+  }
+
+  .social-btn::before,
+  .submit-btn::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-130%;
+    width:55%;
+    height:100%;
+    background:linear-gradient(105deg,transparent,rgba(255,255,255,.52),transparent);
+    transform:skewX(-18deg);
+    transition:left 700ms var(--motion-ease);
+    pointer-events:none;
+  }
+
+  .social-btn:hover::before,
+  .submit-btn:hover::before{
+    left:145%;
+  }
+
+  .social-btn:hover{
+    transform:translateY(-3px) scale(1.008) !important;
+    box-shadow:0 10px 24px rgba(31,63,105,.08);
+  }
+
+  .social-btn:active{
+    transform:translateY(0) scale(.985) !important;
+  }
+
+  /* ---------- inputs: premium focus ---------- */
+  .field{
+    position:relative;
+  }
+
+  .field label{
+    transition:transform 260ms var(--motion-ease), color 260ms ease;
+  }
+
+  .field:focus-within label{
+    color:#398ee8 !important;
+    transform:translateX(4px);
+  }
+
+  .field input{
+    transition:
+      border-color 280ms ease,
+      box-shadow 280ms ease,
+      transform 280ms var(--motion-ease),
+      background 280ms ease !important;
+  }
+
+  .field input:focus{
+    transform:translateY(-2px) !important;
+    box-shadow:
+      0 0 0 4px rgba(47,128,237,.09),
+      0 10px 25px rgba(47,128,237,.07) !important;
+  }
+
+  /* ---------- submit button ---------- */
+  .submit-btn{
+    overflow:hidden;
+    isolation:isolate;
+  }
+
+  .submit-btn::after{
+    content:"";
+    position:absolute;
+    inset:2px;
+    border-radius:inherit;
+    border:1px solid rgba(255,255,255,.22);
+    opacity:0;
+    transform:scale(.94);
+    transition:opacity 300ms ease, transform 300ms var(--spring);
+    pointer-events:none;
+  }
+
+  .submit-btn:hover{
+    transform:translateY(-3px) scale(1.008) !important;
+    box-shadow:0 17px 34px rgba(47,128,237,.25) !important;
+  }
+
+  .submit-btn:hover::after{
+    opacity:1;
+    transform:scale(1);
+  }
+
+  .submit-btn:active{
+    transform:translateY(0) scale(.975) !important;
+  }
+
+  /* ---------- forgot link / guest micro motion ---------- */
+  .forgot-link{
+    transition:color 220ms ease, transform 220ms var(--motion-ease) !important;
+  }
+
+  .forgot-link:hover{
+    transform:translateX(-3px);
+  }
+
+  .guest-link{
+    transition:color 220ms ease, transform 220ms var(--motion-ease), letter-spacing 220ms ease !important;
+  }
+
+  .guest-link:hover{
+    transform:translateY(-2px);
+    letter-spacing:.01em;
+  }
+
+  .signup-row a{
+    display:inline-block;
+    transition:transform 220ms var(--spring), text-shadow 220ms ease;
+  }
+
+  .signup-row a:hover{
+    transform:translateY(-2px);
+    text-shadow:0 5px 15px rgba(64,143,231,.22);
+  }
+
+  /* ---------- back link ---------- */
+  .back-link{
+    transition:transform 280ms var(--motion-ease), color 220ms ease !important;
+  }
+
+  .back-link:hover{
+    transform:translateX(-5px);
+  }
+
+  /* ---------- global exit sequence ---------- */
+  .page.is-exiting{
+    pointer-events:none;
+  }
+
+  .page.is-exiting .logo-motion{
+    animation:logo-exit 520ms var(--motion-ease) forwards;
+  }
+
+  .page.is-exiting .panel-copy{
+    animation:copy-exit 420ms var(--motion-ease) forwards !important;
+  }
+
+  .page.is-exiting .panel-chip{
+    animation:chip-exit 360ms var(--motion-ease) forwards !important;
+  }
+
+  .page.is-exiting .auth-card{
+    animation:card-exit 560ms var(--motion-ease) forwards !important;
+  }
+
+  .page.is-exiting .auth-card > *{
+    animation:form-exit 360ms var(--motion-ease) forwards !important;
+  }
+
+  @keyframes logo-exit{
+    to{opacity:0;transform:translate(-50%,-50%) translateY(-35px) scale(.78) rotate(8deg);}
+  }
+
+  @keyframes copy-exit{
+    to{opacity:0;transform:translateX(-38px) scale(.97);}
+  }
+
+  @keyframes chip-exit{
+    to{opacity:0;transform:translateY(18px) scale(.88);}
+  }
+
+  @keyframes card-exit{
+    to{opacity:0;transform:translate3d(60px,0,0) rotateY(-7deg) scale(.96);}
+  }
+
+  @keyframes form-exit{
+    to{opacity:0;transform:translateX(24px);}
+  }
+
+  /* ---------- guest transition gets a cinematic zoom ---------- */
+  .page.is-guest-exiting .stage{
+    animation:guest-zoom-out 720ms var(--motion-ease) forwards;
+  }
+
+  @keyframes guest-zoom-out{
+    to{opacity:0;transform:scale(1.025);}
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1200px){
+    .logo-motion{width:185px;height:185px;}
+  }
+
+  @media (max-width:900px){
+    .logo-motion{
+      top:29%;
+      width:185px;
+      height:185px;
+    }
+
+    .page.ready .auth-card{
+      animation:card-mobile-in 850ms var(--motion-ease) .12s forwards !important;
+    }
+
+    @keyframes card-mobile-in{
+      0%{opacity:0;transform:translateY(35px) scale(.97) !important;}
+      65%{opacity:1;transform:translateY(-4px) scale(1.01) !important;}
+      100%{opacity:1;transform:translateY(0) scale(1) !important;}
+    }
+  }
+
+  @media (max-width:520px){
+    .logo-motion{width:150px;height:150px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .logo-motion,
+    .animated-brand-logo,
+    .logo-aura,
+    .panel-copy,
+    .panel-chip,
+    .auth-card,
+    .auth-card > *,
+    .panel-chip:hover,
+    .social-btn:hover,
+    .submit-btn:hover{
+      animation:none !important;
+      transition:none !important;
+      transform:none !important;
+      opacity:1 !important;
+    }
+  }
+
+
+/* ================================================================
+   FINAL PROFESSIONAL POLISH OVERRIDES
+   - Full "One Agent. / Multiple Possibilities." tagline is visible
+   - Right login card stays flat/straight (no 3D tilt)
+   - Entrance animations remain smooth and production-friendly
+   ================================================================ */
+
+/* Full left headline: always render both lines */
+.panel-copy .panel-tag{
+  opacity:1 !important;
+  visibility:visible !important;
+}
+.panel-copy .tag-line,
+.panel-copy .tag-highlight{
+  visibility:visible !important;
+}
+
+/* Clean text entrance without hiding the second line */
+.page.ready .panel-copy .tag-line{
+  opacity:1 !important;
+  transform:none !important;
+  animation:tag-line-clean-in 650ms cubic-bezier(.22,1,.36,1) .18s both !important;
+}
+.page.ready .panel-copy .tag-highlight{
+  opacity:1 !important;
+  transform:none !important;
+  clip-path:none !important;
+  animation:tag-highlight-clean-in 760ms cubic-bezier(.22,1,.36,1) .34s both !important;
+}
+@keyframes tag-line-clean-in{
+  0%{opacity:0;transform:translateY(14px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+@keyframes tag-highlight-clean-in{
+  0%{opacity:0;transform:translateY(16px);}
+  100%{opacity:1;transform:translateY(0);}
+}
+
+/* Flat, professional auth card — no perspective/tilt/3D entrance */
+.stage,
+.auth-panel{
+  perspective:none !important;
+}
+.page.ready .auth-card{
+  opacity:1 !important;
+  transform:none !important;
+  animation:auth-card-clean-in 650ms cubic-bezier(.22,1,.36,1) .08s both !important;
+  transform-origin:center !important;
+  will-change:opacity, box-shadow;
+}
+@keyframes auth-card-clean-in{
+  0%{
+    opacity:0;
+    box-shadow:0 10px 30px rgba(24,55,95,.05);
+  }
+  100%{
+    opacity:1;
+    box-shadow:0 18px 50px rgba(24,55,95,.10);
+  }
+}
+
+/* Keep all form controls clearly visible after entrance */
+.page.ready .auth-card .auth-heading,
+.page.ready .auth-card .auth-sub,
+.page.ready .auth-card .social-row,
+.page.ready .auth-card .divider,
+.page.ready .auth-card .field,
+.page.ready .auth-card .forgot,
+.page.ready .auth-card .submit-btn,
+.page.ready .auth-card .guest-link,
+.page.ready .auth-card .signup-row{
+  opacity:1 !important;
+}
+
+/* A restrained professional hover: depth, not 3D rotation */
+.auth-card{
+  transition:box-shadow 300ms ease, border-color 300ms ease !important;
+}
+.auth-card:hover{
+  box-shadow:0 20px 55px rgba(24,55,95,.11) !important;
+}
+
+/* Slightly cleaner logo motion: bounce vertically, no sideways spin */
+.page.ready .animated-brand-logo{
+  animation:
+    logo-professional-in 850ms cubic-bezier(.22,1,.36,1) .05s both,
+    logo-professional-float 4.4s ease-in-out 1s infinite !important;
+}
+@keyframes logo-professional-in{
+  0%{opacity:0;transform:translateY(44px) scale(.78);}
+  58%{opacity:1;transform:translateY(-8px) scale(1.035);}
+  78%{opacity:1;transform:translateY(3px) scale(.985);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+@keyframes logo-professional-float{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-7px) scale(1.012);}
+}
+
+/* Reduce the old card's cursor-driven 3D interaction if any inline transform remains */
+.auth-card[style]{
+  transform:none !important;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .page.ready .panel-copy .tag-line,
+  .page.ready .panel-copy .tag-highlight,
+  .page.ready .auth-card,
+  .page.ready .animated-brand-logo{
+    animation:none !important;
+    transform:none !important;
+    opacity:1 !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1187,11 +1793,15 @@
     <!-- COMPANION PANEL -->
     <section class="companion-panel" id="companionPanel">
       <div class="field-glow" id="fieldGlow"></div>
+      <div class="logo-motion" aria-hidden="true">
+        <span class="logo-aura"></span>
+        <img src="assets/brand/logo-mark.png" alt="" class="animated-brand-logo">
+      </div>
 
       <div class="panel-copy">
         <span class="panel-tag">
           <span class="tag-line">One Agent.</span>
-          <span class="tag-highlight">Infinite Possibilities.</span>
+          <span class="tag-highlight">Multiple Possibilities.</span>
         </span>
         <div class="panel-chips" aria-hidden="true">
           <span class="panel-chip">
@@ -2190,18 +2800,88 @@
     });
   });
 
-  /* card subtle 3D response to cursor (desktop only, max ~1.5deg) */
+  /* professional card interaction: intentionally flat, no 3D tilt */
   const authCard = document.querySelector('.auth-card');
-  if(!isTouch && !prefersReduced){
-    authCard.addEventListener('mousemove', (e)=>{
-      const r = authCard.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
-      authCard.style.transform = `rotateY(${px*1.4}deg) rotateX(${-py*1.4}deg)`;
-    });
+  if(authCard){
     authCard.addEventListener('mouseleave', ()=>{
       authCard.style.transform = '';
     });
+  }
+
+
+  /* ================= PREMIUM MOTION CONTROLLER ================= */
+  const motionPage = document.getElementById('page');
+  const transitionOverlayEl = document.getElementById('transitionOverlay');
+
+  function playExitThen(url, mode='normal'){
+    if(!motionPage) {
+      window.location.href = url;
+      return;
+    }
+
+    motionPage.classList.add('is-exiting');
+    if(mode === 'guest') motionPage.classList.add('is-guest-exiting');
+
+    if(transitionOverlayEl){
+      transitionOverlayEl.classList.add('active');
+    }
+
+    setTimeout(()=>{
+      window.location.href = url;
+    }, 560);
+  }
+
+  /* Replace normal back-link navigation with the exit animation. */
+  document.querySelectorAll('[data-transition]').forEach(link=>{
+    link.addEventListener('click', e=>{
+      const href = link.getAttribute('href');
+      if(!href || href.startsWith('#')) return;
+      e.preventDefault();
+      playExitThen(href);
+    });
+  });
+
+  /* Guest mode gets a slightly longer cinematic exit. */
+  if(guestBtn){
+    guestBtn.addEventListener('click', ()=>{
+      motionPage.classList.add('is-exiting','is-guest-exiting');
+      if(transitionOverlayEl) transitionOverlayEl.classList.add('active');
+    }, true);
+  }
+
+  /* Make the login button feel responsive without changing auth behavior. */
+  if(submitBtn){
+    submitBtn.addEventListener('pointerdown', ()=>{
+      submitBtn.style.setProperty('--press-scale','.975');
+    });
+    submitBtn.addEventListener('pointerup', ()=>{
+      submitBtn.style.removeProperty('--press-scale');
+    });
+  }
+
+  /* Gentle parallax for the left logo/copy, desktop only. */
+  if(!isTouch && !prefersReduced){
+    const companion = document.getElementById('companionPanel');
+    const logo = document.querySelector('.animated-brand-logo');
+    const copy = document.querySelector('.panel-copy');
+
+    if(companion && logo && copy){
+      companion.addEventListener('mousemove', e=>{
+        if(motionPage && motionPage.classList.contains('is-exiting')) return;
+
+        const r = companion.getBoundingClientRect();
+        const x = (e.clientX-r.left)/r.width-.5;
+        const y = (e.clientY-r.top)/r.height-.5;
+
+        logo.style.translate = `${x*5}px ${y*4}px`;
+        copy.style.translate = `${x*2.5}px ${y*2}px`;
+      });
+
+      companion.addEventListener('mouseleave', ()=>{
+        logo.style.translate = '';
+        copy.style.translate = '';
+      });
+    }
   }
 
 })();
