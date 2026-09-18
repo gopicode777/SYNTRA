@@ -414,8 +414,8 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
 /* initial page-load preloader — single logo image, smooth fade + gentle float, hides as soon as the page is actually ready */
 .page-loader{position:fixed;inset:0;z-index:10500;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s var(--ease), visibility .5s;}
 .page-loader::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, rgba(91,33,201,0.12), transparent 65%);}
-.page-loader-mark{width:88px;height:88px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));opacity:0;animation:loaderFadeIn .5s var(--ease) forwards, loaderFloat 2.4s ease-in-out .5s infinite;}
-@keyframes loaderFadeIn{to{opacity:1;}}
+.page-loader-mark{width:88px;height:88px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));opacity:0;animation:loaderFadeIn .55s cubic-bezier(.34,1.56,.64,1) forwards, loaderFloat 2.4s ease-in-out .55s infinite;}
+@keyframes loaderFadeIn{0%{opacity:0;transform:scale(.72);}65%{opacity:1;transform:scale(1.06);}100%{opacity:1;transform:scale(1);}}
 @keyframes loaderFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 .page-loader.done{opacity:0;visibility:hidden;pointer-events:none;}
 @media(prefers-reduced-motion:reduce){.page-loader-mark{animation:none;opacity:1;}.transition-overlay .logo-mark{animation:none;}}
@@ -978,7 +978,7 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
   var pageLoader = document.getElementById('pageLoader');
   if(pageLoader){
     var loaderStart = Date.now();
-    var minShow = reduced ? 0 : 400;
+    var minShow = reduced ? 0 : 900;
     var maxWait = reduced ? 400 : 3000;
     var loaderDone = false;
     var hideLoader = function(){
@@ -987,7 +987,12 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
       var wait = Math.max(0, minShow - (Date.now() - loaderStart));
       setTimeout(function(){
         pageLoader.classList.add('done');
-        document.body.classList.add('loaded');
+        /* wait for the loader's own fade-out (.5s) to almost finish before
+           revealing the hero content — otherwise the small loader logo and
+           the big hero logo cross-fade on top of each other (overlap). */
+        setTimeout(function(){
+          document.body.classList.add('loaded');
+        }, reduced ? 0 : 420);
       }, wait);
     };
     if(document.readyState === 'complete'){
@@ -1150,17 +1155,9 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
   }, {threshold:0.4});
   if(matchCard) io2.observe(matchCard);
 
-  /* ---------- page transition to login.html ---------- */
-  var overlay = document.getElementById('transitionOverlay');
-  document.querySelectorAll('[data-transition]').forEach(function(a){
-    a.addEventListener('click', function(e){
-      var href = a.getAttribute('href');
-      if(!href || href.charAt(0)==='#') return;
-      e.preventDefault();
-      overlay.classList.add('active');
-      setTimeout(function(){ window.location.href = href; }, 480);
-    });
-  });
+  /* ---------- page transition to login.html ----------
+     no overlay/loading effect here anymore — clicking these links
+     just navigates straight to login.html normally. */
 
   /* ---------- hero logo subtle mouse parallax ---------- */
   var visual = document.querySelector('.hero-visual');

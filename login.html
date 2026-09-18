@@ -700,8 +700,8 @@
   /* ---------- initial page-load preloader (floating logo) ---------- */
   .page-loader{ position:fixed; inset:0; z-index:10500; background:var(--bg-0); display:flex; align-items:center; justify-content:center; transition:opacity .3s cubic-bezier(.16,.84,.32,1), visibility .3s; }
   .page-loader::before{ content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 45%, var(--accent-a-soft), transparent 65%); }
-  .page-loader-mark{ width:88px; height:88px; object-fit:contain; position:relative; z-index:1; filter:drop-shadow(0 14px 30px rgba(91,155,255,0.4)); opacity:0; animation:loaderFadeIn .5s cubic-bezier(.16,.84,.32,1) forwards, loaderFloat 2.4s ease-in-out .5s infinite; }
-  @keyframes loaderFadeIn{ to{ opacity:1; } }
+  .page-loader-mark{ width:88px; height:88px; object-fit:contain; position:relative; z-index:1; filter:drop-shadow(0 14px 30px rgba(91,155,255,0.4)); opacity:0; animation:loaderFadeIn .55s cubic-bezier(.34,1.56,.64,1) forwards, loaderFloat 2.4s ease-in-out .55s infinite; }
+  @keyframes loaderFadeIn{ 0%{opacity:0; transform:scale(.72);} 65%{opacity:1; transform:scale(1.06);} 100%{opacity:1; transform:scale(1);} }
   @keyframes loaderFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
   .page-loader.done{ opacity:0; visibility:hidden; pointer-events:none; }
 
@@ -723,7 +723,8 @@
 </head>
 <body>
 
-<div class="page-loader" id="pageLoader" aria-hidden="true"><img src="assets/brand/logo-mark.png" alt="" class="page-loader-mark"></div>
+<!-- page-loader removed: loading screen should only show on the very first (index.html) load, not when arriving at login.html -->
+<div class="page-loader" id="pageLoader" aria-hidden="true" style="display:none"><img src="assets/brand/logo-mark.png" alt="" class="page-loader-mark"></div>
 <div class="transition-overlay" id="transitionOverlay"><img src="assets/brand/logo-mark.png" alt=""></div>
 
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
@@ -1090,7 +1091,7 @@
     var pageLoader = document.getElementById('pageLoader');
     if(!pageLoader) return;
     var loaderStart = Date.now();
-    var minShow = prefersReduced ? 0 : 400;
+    var minShow = prefersReduced ? 0 : 900;
     var maxWait = prefersReduced ? 400 : 3000;
     var loaderDone = false;
     var hideLoader = function(){
