@@ -719,6 +719,365 @@
       scroll-behavior: auto !important;
     }
   }
+
+
+  /* ============================================================
+     REFERENCE SCREEN STRUCTURE OVERRIDE
+     Visual/layout only. Existing markup, assets, links and JS behavior
+     are intentionally preserved. The project logo is loaded from the
+     existing assets/brand/logo-mark.png path.
+     ============================================================ */
+  html, body { background:#fff !important; }
+  body { overflow:hidden !important; }
+
+  #bg-canvas, #trail-canvas, .aurora-field, .grid-field, .grain-field { display:none !important; }
+
+  .page {
+    min-height:100vh !important;
+    height:100vh !important;
+    display:block !important;
+    position:relative !important;
+    background:#fff !important;
+  }
+
+  .topbar {
+    position:absolute !important;
+    left:34px !important;
+    top:24px !important;
+    right:34px !important;
+    z-index:20 !important;
+    padding:0 !important;
+    pointer-events:none;
+  }
+  .topbar .back-link {
+    pointer-events:auto;
+    color:#6f829e !important;
+    font-size:13px !important;
+    opacity:.88;
+  }
+  .topbar .wordmark { display:none !important; }
+
+  .stage {
+    width:100vw !important;
+    height:100vh !important;
+    min-height:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    display:grid !important;
+    grid-template-columns:52.8% 47.2% !important;
+    align-items:stretch !important;
+    justify-content:stretch !important;
+  }
+
+  .stage-card {
+    width:100% !important;
+    max-width:none !important;
+    height:100% !important;
+    min-height:0 !important;
+    display:contents !important;
+    border:0 !important;
+    border-radius:0 !important;
+    overflow:visible !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+
+  /* LEFT SIDE — clean white reference layout */
+  .companion-panel {
+    grid-column:1 !important;
+    grid-row:1 !important;
+    min-height:100vh !important;
+    height:100vh !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    display:block !important;
+    position:relative !important;
+    background:#fff !important;
+    border:0 !important;
+  }
+  .companion-panel::before { display:none !important; }
+  .companion-panel::after {
+    content:"" !important;
+    position:absolute !important;
+    z-index:1 !important;
+    pointer-events:none !important;
+    left:50% !important;
+    top:30.2% !important;
+    width:205px !important;
+    height:205px !important;
+    aspect-ratio:auto !important;
+    transform:translate(-50%,-50%) scale(1) !important;
+    background:url('assets/brand/logo-mark.png') center center / contain no-repeat !important;
+    filter:drop-shadow(0 15px 20px rgba(48,116,230,.15)) drop-shadow(0 5px 30px rgba(79,119,235,.18)) !important;
+    opacity:1 !important;
+    transition:none !important;
+  }
+
+  .field-glow, .orbit-wrap, .companion-caption { display:none !important; }
+
+  .panel-copy {
+    position:absolute !important;
+    z-index:3 !important;
+    left:clamp(55px,12.35vw,198px) !important;
+    top:51.2% !important;
+    width:520px !important;
+    max-width:calc(100% - 70px) !important;
+    padding:0 !important;
+    margin:0 !important;
+    opacity:1 !important;
+    transform:none !important;
+    animation:none !important;
+  }
+  .panel-copy .panel-tag {
+    display:block !important;
+    font-family:'Sora',Inter,sans-serif !important;
+    font-size:49px !important;
+    line-height:1.08 !important;
+    letter-spacing:-2.2px !important;
+    font-weight:700 !important;
+    margin:0 !important;
+  }
+  .panel-tag .tag-line {
+    display:block !important;
+    color:#102d55 !important;
+    text-shadow:none !important;
+  }
+  .panel-tag .tag-highlight {
+    display:block !important;
+    width:max-content !important;
+    max-width:100% !important;
+    padding:0 !important;
+    margin:5px 0 0 !important;
+    border-radius:0 !important;
+    background:linear-gradient(90deg,#2d92ed 0%,#4b75ed 78%) !important;
+    -webkit-background-clip:text !important;
+    background-clip:text !important;
+    color:transparent !important;
+    box-shadow:none !important;
+    animation:none !important;
+  }
+  .panel-chips {
+    display:flex !important;
+    align-items:center !important;
+    gap:24px !important;
+    margin-top:38px !important;
+  }
+  .panel-chip {
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:10px !important;
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    backdrop-filter:none !important;
+    border-radius:0 !important;
+    color:#405775 !important;
+    font-size:14px !important;
+    font-weight:600 !important;
+    white-space:nowrap !important;
+  }
+  .panel-chip .dot {
+    width:43px !important;
+    height:43px !important;
+    border-radius:50% !important;
+    background:#e9f5ff !important;
+    box-shadow:none !important;
+    position:relative !important;
+  }
+  .panel-chip .dot::after {
+    content:"" !important;
+    position:absolute !important;
+    inset:11px !important;
+    border-radius:3px !important;
+    background:#3994e9 !important;
+    box-shadow:none !important;
+  }
+  .panel-chip .dot-b {
+    background:#f1eaff !important;
+  }
+  .panel-chip .dot-b::after {
+    inset:10px !important;
+    width:19px !important;
+    height:19px !important;
+    border-radius:50% !important;
+    background:transparent !important;
+    border:3px solid #8553df !important;
+  }
+  .panel-chip .dot-c {
+    background:#e6faef !important;
+  }
+  .panel-chip .dot-c::after {
+    inset:11px !important;
+    background:#28c876 !important;
+    clip-path:polygon(45% 0,100% 0,63% 42%,100% 42%,35% 100%,48% 54%,0 54%) !important;
+    border-radius:0 !important;
+  }
+
+  /* RIGHT SIDE — screenshot-style floating login card */
+  .auth-panel {
+    grid-column:2 !important;
+    grid-row:1 !important;
+    min-height:100vh !important;
+    height:100vh !important;
+    padding:32px 0 32px 0 !important;
+    display:flex !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    background:#fff !important;
+    border:0 !important;
+  }
+  .auth-card {
+    width:min(614px, calc(100% - 50px)) !important;
+    max-width:none !important;
+    height:687px !important;
+    margin:0 !important;
+    padding:44px 68px 34px !important;
+    border:1px solid #e2e8f0 !important;
+    border-radius:20px !important;
+    background:rgba(255,255,255,.97) !important;
+    box-shadow:0 14px 38px rgba(31,63,105,.08),0 2px 8px rgba(31,63,105,.035) !important;
+    opacity:1 !important;
+    transform:none !important;
+    animation:none !important;
+  }
+  .stagger > * { opacity:1 !important; transform:none !important; animation:none !important; }
+
+  .auth-heading {
+    margin:0 !important;
+    font-family:'Sora',Inter,sans-serif !important;
+    font-size:31px !important;
+    line-height:1.2 !important;
+    letter-spacing:-1.15px !important;
+    font-weight:700 !important;
+    color:#112f55 !important;
+  }
+  .auth-sub {
+    margin:13px 0 31px !important;
+    font-size:17px !important;
+    color:#7184a1 !important;
+    letter-spacing:-.15px !important;
+  }
+  .social-row {
+    display:flex !important;
+    flex-direction:column !important;
+    gap:14px !important;
+    margin-bottom:0 !important;
+  }
+  .social-btn {
+    width:100% !important;
+    height:45px !important;
+    padding:0 14px !important;
+    border:1px solid #dce3ec !important;
+    border-radius:24px !important;
+    background:#fff !important;
+    color:#203858 !important;
+    font-size:15px !important;
+    font-weight:600 !important;
+  }
+  .social-btn:hover {
+    background:#fbfdff !important;
+    border-color:#c9d5e5 !important;
+    transform:translateY(-1px) !important;
+  }
+  .social-btn svg { width:23px !important; height:23px !important; }
+
+  .divider {
+    display:flex !important;
+    align-items:center !important;
+    gap:23px !important;
+    margin:24px 0 25px !important;
+    color:#7b8da7 !important;
+    font-size:14px !important;
+    font-weight:500 !important;
+  }
+  .divider::before,.divider::after { background:#e0e5ec !important; }
+
+  .field { margin-bottom:20px !important; }
+  .field label {
+    margin-bottom:8px !important;
+    color:#243c5d !important;
+    font-size:14px !important;
+    font-weight:700 !important;
+  }
+  .field input {
+    width:100% !important;
+    height:45px !important;
+    padding:0 17px !important;
+    border:1px solid #dce3ec !important;
+    border-radius:24px !important;
+    background:#fff !important;
+    color:#183558 !important;
+    font-size:15px !important;
+  }
+  .field input:focus {
+    border-color:#6aa5ee !important;
+    background:#fff !important;
+    box-shadow:0 0 0 4px rgba(47,128,237,.09) !important;
+  }
+  .forgot {
+    display:block !important;
+    width:max-content !important;
+    margin:-4px 0 31px auto !important;
+    color:#438fe4 !important;
+    font-size:13px !important;
+    font-weight:600 !important;
+  }
+  .submit {
+    width:100% !important;
+    height:44px !important;
+    border:0 !important;
+    border-radius:24px !important;
+    background:linear-gradient(90deg,#2e7fec,#429df2) !important;
+    color:#fff !important;
+    font-size:15px !important;
+    font-weight:600 !important;
+  }
+  .guest {
+    width:100% !important;
+    margin-top:20px !important;
+    border:0 !important;
+    background:transparent !important;
+    color:#526987 !important;
+    font-size:15px !important;
+    font-weight:600 !important;
+  }
+  .signup-row, .signup {
+    margin-top:35px !important;
+    text-align:center !important;
+    color:#788ba6 !important;
+    font-size:14px !important;
+  }
+  .signup-row a, .signup a { color:#408fe7 !important; font-weight:600 !important; }
+
+  @media (max-width:1200px){
+    .panel-copy { left:8vw !important; }
+    .panel-copy .panel-tag { font-size:44px !important; }
+    .companion-panel::after { width:185px !important; height:185px !important; }
+    .auth-card { padding-left:48px !important; padding-right:48px !important; }
+  }
+  @media (max-width:900px){
+    body { overflow:auto !important; }
+    .page, .stage { height:auto !important; min-height:100vh !important; }
+    .stage { display:block !important; }
+    .companion-panel { min-height:540px !important; height:540px !important; }
+    .auth-panel { min-height:100vh !important; height:auto !important; padding:30px 20px 50px !important; justify-content:center !important; }
+    .auth-card { width:min(614px,100%) !important; height:auto !important; min-height:687px !important; }
+    .panel-copy { left:28px !important; top:63% !important; }
+    .panel-copy .panel-tag { font-size:42px !important; }
+    .companion-panel::after { top:29% !important; }
+  }
+  @media (max-width:520px){
+    .topbar { left:18px !important; top:16px !important; }
+    .companion-panel { min-height:500px !important; height:500px !important; }
+    .companion-panel::after { width:150px !important; height:150px !important; }
+    .panel-copy { left:24px !important; top:61% !important; max-width:calc(100% - 48px) !important; }
+    .panel-copy .panel-tag { font-size:34px !important; letter-spacing:-1.4px !important; }
+    .panel-chips { gap:16px !important; flex-wrap:wrap !important; }
+    .panel-chip { font-size:12px !important; }
+    .panel-chip .dot { width:36px !important; height:36px !important; }
+    .auth-card { padding:34px 24px !important; }
+    .auth-heading { font-size:27px !important; }
+  }
 </style>
 </head>
 <body>
@@ -1038,8 +1397,6 @@
             <button type="button" class="guest-link" id="guestBtn">Continue as Guest</button>
             <div class="guest-note" id="guestNote">Guest mode gives you limited access to explore A2ZNexus. Your work won't be saved to an account.</div>
           </div>
-
-          <p class="signup-row">Don't have an account? <a href="signup.html">Create one</a></p>
         </div>
       </form>
     </section>
