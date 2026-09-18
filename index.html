@@ -106,17 +106,6 @@ img,svg{display:block;max-width:100%;}
 @keyframes aurora3{0%,100%{transform:translate(0,0) scale(1);}35%{transform:translate(5vw,-7vh) scale(1.1);}65%{transform:translate(-4vw,-2vh) scale(.96);}}
 @media(prefers-reduced-motion: reduce){ .aurora span{animation:none;} }
 
-/* ============ CUSTOM CURSOR ============ */
-.cursor-dot,.cursor-ring{
-  position:fixed;top:0;left:0;pointer-events:none;z-index:9999;
-  border-radius:50%;transform:translate(-50%,-50%);will-change:transform;
-}
-.cursor-dot{width:6px;height:6px;background:var(--blue);transition:opacity .2s;}
-.cursor-ring{width:34px;height:34px;border:1px solid var(--line-strong);transition:width .25s var(--ease),height .25s var(--ease),border-color .25s,background .25s;}
-.cursor-ring.big{width:64px;height:64px;border-color:var(--blue);background:rgba(91,33,201,0.06);}
-@media(hover:none),(pointer:coarse){.cursor-dot,.cursor-ring{display:none;}}
-@media(prefers-reduced-motion:reduce){.cursor-ring{transition:none;}}
-
 /* ============ NAV ============ */
 header.nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 0;transition:background .4s var(--ease), border-color .4s var(--ease), padding .4s var(--ease);border-bottom:1px solid transparent;}
 header.nav.scrolled{background:rgba(255,255,255,0.78);backdrop-filter:blur(14px) saturate(140%);border-bottom:1px solid var(--line);padding:14px 0;}
@@ -177,7 +166,8 @@ h1 .line2{display:block;background:linear-gradient(100deg,var(--blue),var(--blue
 @keyframes spinSlow{to{transform:rotate(360deg);}}
 @media(prefers-reduced-motion:reduce){.logo-ring{animation:none;}}
 
-.hero-logo-mark{width:230px;height:230px;object-fit:contain;filter:drop-shadow(0 20px 44px rgba(91,33,201,0.4));animation:logoFloat 5s ease-in-out infinite;}
+.hero-logo-mark{width:230px;height:230px;object-fit:contain;filter:drop-shadow(0 20px 44px rgba(91,33,201,0.4));animation:logoFloat 5s ease-in-out infinite;animation-play-state:paused;opacity:0;transition:opacity .8s var(--ease);}
+body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
 @keyframes logoFloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-18px) scale(1.05);}}
 @media(prefers-reduced-motion:reduce){.hero-logo-mark{animation:none;}}
 
@@ -421,13 +411,14 @@ h1 .line2{display:block;background:linear-gradient(100deg,var(--blue),var(--blue
 .transition-overlay.active .logo-mark{transform:scale(1);animation:overlayLogoFloat 1.6s ease-in-out .6s infinite;}
 @keyframes overlayLogoFloat{0%,100%{transform:scale(1) translateY(0);}50%{transform:scale(1.08) translateY(-8px);}}
 
-/* initial page-load preloader */
-.page-loader{position:fixed;inset:0;z-index:10500;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .6s var(--ease), visibility .6s;}
+/* initial page-load preloader — single logo image, smooth intro + float, ~15s hold */
+.page-loader{position:fixed;inset:0;z-index:10500;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .8s var(--ease), visibility .8s;}
 .page-loader::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, rgba(91,33,201,0.12), transparent 65%);}
-.page-loader-mark{width:88px;height:88px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));animation:loaderFloat 1.6s ease-in-out infinite;}
-@keyframes loaderFloat{0%,100%{transform:translateY(0) scale(1);opacity:1;}50%{transform:translateY(-14px) scale(1.08);opacity:.85;}}
+.page-loader-mark{width:96px;height:96px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));opacity:0;animation:loaderIntro .9s var(--ease) forwards, loaderFloat 2.4s ease-in-out .9s infinite;}
+@keyframes loaderIntro{0%{transform:scale(.72);opacity:0;}100%{transform:scale(1);opacity:1;}}
+@keyframes loaderFloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-14px) scale(1.05);}}
 .page-loader.done{opacity:0;visibility:hidden;pointer-events:none;}
-@media(prefers-reduced-motion:reduce){.page-loader-mark{animation:none;}.transition-overlay .logo-mark{animation:none;}}
+@media(prefers-reduced-motion:reduce){.page-loader-mark{animation:none;opacity:1;}.transition-overlay .logo-mark{animation:none;}}
 
 /* ============ GLOBAL SCROLL ANIMATION SYSTEM ============ */
 .particle-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
@@ -503,8 +494,6 @@ h1 .line2{display:block;background:linear-gradient(100deg,var(--blue),var(--blue
 <canvas class="particle-canvas" id="particleCanvas" aria-hidden="true"></canvas>
 <div class="cursor-spotlight" id="spotlight" aria-hidden="true"></div>
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
-<div class="cursor-dot" id="cursorDot"></div>
-<div class="cursor-ring" id="cursorRing"></div>
 <div class="transition-overlay" id="transitionOverlay"><div class="logo-mark"></div></div>
 
 <!-- NAV -->
@@ -982,34 +971,17 @@ h1 .line2{display:block;background:linear-gradient(100deg,var(--blue),var(--blue
 (function(){
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- initial page-load preloader (floating logo) ---------- */
+  /* ---------- initial page-load preloader (single floating logo, holds ~15s) ---------- */
   var pageLoader = document.getElementById('pageLoader');
   if(pageLoader){
-    var hideLoader = function(){ pageLoader.classList.add('done'); };
-    window.addEventListener('load', function(){ setTimeout(hideLoader, reduced?150:700); });
-    // safety net in case 'load' is delayed by slow assets
-    setTimeout(hideLoader, 3200);
+    var hideLoader = function(){
+      pageLoader.classList.add('done');
+      document.body.classList.add('loaded');
+    };
+    setTimeout(hideLoader, reduced ? 400 : 15000);
+  } else {
+    document.body.classList.add('loaded');
   }
-
-  /* ---------- custom cursor ---------- */
-  var dot = document.getElementById('cursorDot'), ring = document.getElementById('cursorRing');
-  var rx=0, ry=0, mx=0, my=0;
-  if(!reduced && window.matchMedia('(hover:hover)').matches){
-    window.addEventListener('mousemove', function(e){
-      mx=e.clientX; my=e.clientY;
-      dot.style.transform='translate('+mx+'px,'+my+'px) translate(-50%,-50%)';
-    });
-    function loop(){
-      rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
-      ring.style.transform='translate('+rx+'px,'+ry+'px) translate(-50%,-50%)';
-      requestAnimationFrame(loop);
-    }
-    loop();
-    document.querySelectorAll('a,button,.flow-node,.cap-card,.arch-node').forEach(function(el){
-      el.addEventListener('mouseenter',function(){ring.classList.add('big');});
-      el.addEventListener('mouseleave',function(){ring.classList.remove('big');});
-    });
-  } else { dot.style.display='none'; ring.style.display='none'; }
 
   /* ---------- magnetic buttons ---------- */
   if(!reduced){
