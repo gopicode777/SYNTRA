@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/* skip the brand splash when arriving from another page of this site (e.g. "Back to A2ZNexus" on login) */
+(function(){try{var r=document.referrer;if(r){var u=new URL(r);if(u.origin===location.origin&&u.pathname!==location.pathname){document.documentElement.classList.add('no-splash');}}}catch(e){}})();
+</script>
 <title>A2ZNexus — One Agent. Infinite Possibilities.</title>
 <link rel="icon" type="image/png" href="assets/brand/logo-mark.png">
 <link rel="apple-touch-icon" href="assets/brand/logo-mark.png">
@@ -411,14 +415,7 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
 .transition-overlay.active .logo-mark{transform:scale(1);animation:overlayLogoFloat 1.6s ease-in-out .6s infinite;}
 @keyframes overlayLogoFloat{0%,100%{transform:scale(1) translateY(0);}50%{transform:scale(1.08) translateY(-8px);}}
 
-/* initial page-load preloader — single logo image, smooth fade + gentle float, hides as soon as the page is actually ready */
-.page-loader{position:fixed;inset:0;z-index:10500;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s var(--ease), visibility .5s;}
-.page-loader::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, rgba(91,33,201,0.12), transparent 65%);}
-.page-loader-mark{width:88px;height:88px;object-fit:contain;position:relative;z-index:1;filter:drop-shadow(0 14px 30px rgba(91,33,201,0.35));opacity:0;animation:loaderFadeIn .55s cubic-bezier(.34,1.56,.64,1) forwards, loaderFloat 2.4s ease-in-out .55s infinite;}
-@keyframes loaderFadeIn{0%{opacity:0;transform:scale(.72);}65%{opacity:1;transform:scale(1.06);}100%{opacity:1;transform:scale(1);}}
-@keyframes loaderFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-.page-loader.done{opacity:0;visibility:hidden;pointer-events:none;}
-@media(prefers-reduced-motion:reduce){.page-loader-mark{animation:none;opacity:1;}.transition-overlay .logo-mark{animation:none;}}
+@media(prefers-reduced-motion:reduce){.transition-overlay .logo-mark{animation:none;}}
 
 /* ============ GLOBAL SCROLL ANIMATION SYSTEM ============ */
 .particle-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
@@ -482,11 +479,322 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
 }
 
 :focus-visible{outline:2px solid var(--blue);outline-offset:3px;}
+
+/* ============================================================
+   A2ZNexus BRAND SPLASH  (first-load intro — index.html only)
+   logo reveal -> name types in -> loading bar -> logo glides into
+   the hero logo spot while the landing page reveals.
+   ============================================================ */
+html.splash-lock{ overflow:hidden; }
+html.no-splash .brand-splash{ display:none !important; }
+
+.brand-splash{
+  --bs-v:106,61,245;      /* violet  (matches landing --blue-2) */
+  --bs-b:91,155,255;      /* blue    (matches logo highlights)  */
+  --bs-ease:cubic-bezier(.16,.84,.32,1);
+  --bs-spring:cubic-bezier(.34,1.56,.64,1);
+  position:fixed; inset:0; z-index:11000;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; font-family:'Inter',sans-serif;
+}
+.brand-splash.gone{ display:none; }
+.brand-splash.leaving{ pointer-events:none; }
+
+/* ---------- backdrop ---------- */
+.bs-backdrop{ position:absolute; inset:0; background:#fff; transition:opacity .9s var(--bs-ease) .12s; }
+.brand-splash.leaving .bs-backdrop{ opacity:0; }
+.bs-backdrop::before{
+  content:''; position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(13,29,56,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,29,56,.05) 1px, transparent 1px);
+  background-size:56px 56px;
+  -webkit-mask-image:radial-gradient(ellipse 55% 50% at 50% 46%, #000, transparent 75%);
+          mask-image:radial-gradient(ellipse 55% 50% at 50% 46%, #000, transparent 75%);
+  opacity:0; animation:bsFade 1.2s ease .2s forwards;
+}
+.bs-blob{ position:absolute; border-radius:50%; filter:blur(70px); opacity:0; will-change:transform; }
+.bs-blob.b1{
+  width:52vmax; height:52vmax; left:-14vmax; top:-18vmax;
+  background:radial-gradient(circle, rgba(var(--bs-b),.40), transparent 68%);
+  animation:bsFade 1.4s ease .1s forwards, bsDriftA 16s ease-in-out infinite;
+}
+.bs-blob.b2{
+  width:46vmax; height:46vmax; right:-12vmax; bottom:-16vmax;
+  background:radial-gradient(circle, rgba(var(--bs-v),.30), transparent 68%);
+  animation:bsFade 1.4s ease .3s forwards, bsDriftB 19s ease-in-out infinite;
+}
+.bs-blob.b3{
+  width:30vmax; height:30vmax; right:12vmax; top:-10vmax;
+  background:radial-gradient(circle, rgba(143,197,255,.38), transparent 68%);
+  animation:bsFade 1.4s ease .5s forwards, bsDriftB 14s ease-in-out infinite reverse;
+}
+@keyframes bsFade{ to{ opacity:1; } }
+@keyframes bsDriftA{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(6vmax,5vmax); } }
+@keyframes bsDriftB{ 0%,100%{ transform:translate(0,0); } 50%{ transform:translate(-5vmax,-4vmax); } }
+@keyframes bsSpin{ to{ transform:rotate(360deg); } }
+
+/* ---------- stage ---------- */
+.bs-stage{
+  position:relative; z-index:2; display:flex; flex-direction:column; align-items:center;
+  --bs-size:clamp(118px, 21vmin, 170px);
+  transform:translateY(-2vh);
+}
+
+/* ---------- emblem ---------- */
+.bs-emblem{ position:relative; width:var(--bs-size); height:var(--bs-size); margin-bottom:calc(var(--bs-size) * .42); }
+.bs-fx{ position:absolute; inset:0; pointer-events:none; transition:opacity .35s ease; }
+.brand-splash.leaving .bs-fx{ opacity:0; }
+
+.bs-aura{
+  position:absolute; inset:-34%; border-radius:50%;
+  background:radial-gradient(circle, rgba(var(--bs-v),.30), rgba(var(--bs-v),0) 66%);
+  filter:blur(14px); opacity:0; transform:scale(.6);
+  animation:bsAuraIn 1.1s var(--bs-spring) .1s forwards, bsAuraPulse 3.2s ease-in-out 1.2s infinite;
+}
+@keyframes bsAuraIn{ to{ opacity:.9; transform:scale(1); } }
+@keyframes bsAuraPulse{ 0%,100%{ opacity:.7; transform:scale(1); } 50%{ opacity:1; transform:scale(1.1); } }
+
+.bs-pulse{
+  position:absolute; inset:0; border-radius:50%;
+  border:1.5px solid rgba(var(--bs-v),.34); opacity:0;
+  animation:bsPulse 3s cubic-bezier(.2,.6,.3,1) 1s infinite;
+}
+.bs-pulse.p2{ animation-delay:2.5s; border-color:rgba(var(--bs-b),.34); }
+@keyframes bsPulse{ 0%{ opacity:.7; transform:scale(.8); } 100%{ opacity:0; transform:scale(2.15); } }
+
+.bs-ring-thin{ position:absolute; inset:-48%; border-radius:50%; border:1px solid rgba(var(--bs-v),.12); opacity:0; animation:bsFade .8s ease .9s forwards; }
+.bs-ring-dash{
+  position:absolute; inset:-15%; border-radius:50%; border:1px dashed rgba(var(--bs-v),.40); opacity:0;
+  animation:bsFade .8s ease .7s forwards, bsSpin 26s linear infinite reverse;
+}
+.bs-comet{
+  position:absolute; inset:-28%; border-radius:50%;
+  background:conic-gradient(from 0deg,
+    rgba(var(--bs-v),0) 0deg, rgba(var(--bs-v),0) 190deg,
+    rgba(var(--bs-b),.25) 265deg, rgb(var(--bs-v)) 352deg, rgba(var(--bs-v),0) 360deg);
+  -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+          mask:radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+  opacity:0; animation:bsFade .6s ease .6s forwards, bsSpin 1.9s linear infinite;
+}
+.bs-orbit{ position:absolute; inset:-15%; border-radius:50%; opacity:0; animation:bsFade .6s ease .9s forwards, bsSpin 7s linear infinite; }
+.bs-orbit i{
+  position:absolute; left:50%; top:0; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; border-radius:50%;
+  background:linear-gradient(135deg,#a48bff,rgb(var(--bs-v)));
+  box-shadow:0 0 14px 3px rgba(var(--bs-v),.55);
+}
+.bs-orbit i + i{
+  top:auto; bottom:0; width:6px; height:6px; margin:0 0 -3px -3px;
+  background:linear-gradient(135deg,#bfe0ff,rgb(var(--bs-b)));
+  box-shadow:0 0 12px 3px rgba(var(--bs-b),.55);
+}
+
+/* the logo — this wrapper is what glides to the hero */
+.bs-logo-fly{ position:absolute; inset:0; z-index:3; transition:transform .95s cubic-bezier(.65,0,.2,1); will-change:transform; }
+.bs-logo{
+  width:100%; height:100%; object-fit:contain; display:block; opacity:0;
+  filter:drop-shadow(0 15px 33px rgba(91,33,201,.38));
+  animation:bsLogoIn 1.05s var(--bs-spring) .1s forwards, bsLogoFloat 4.2s ease-in-out 1.2s infinite;
+}
+@keyframes bsLogoIn{
+  0%{ opacity:0; transform:translateY(60px) scale(.55) rotate(-8deg); }
+  45%{ opacity:1; transform:translateY(-14px) scale(1.08) rotate(2deg); }
+  68%{ transform:translateY(6px) scale(.97) rotate(-1deg); }
+  100%{ opacity:1; transform:translateY(0) scale(1) rotate(0); }
+}
+@keyframes bsLogoFloat{ 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-8px) scale(1.015); } }
+
+/* ---------- name + tagline + loader ---------- */
+.bs-info{ display:flex; flex-direction:column; align-items:center; transition:opacity .4s ease, transform .5s var(--bs-ease); }
+.brand-splash.leaving .bs-info{ opacity:0; transform:translateY(14px); }
+
+.bs-word{
+  display:flex; font-family:'Sora',sans-serif; font-weight:800; letter-spacing:-.025em; line-height:1;
+  font-size:clamp(34px, 7.4vw, 50px);
+}
+.bs-word span{
+  display:inline-block; color:#0b1526; opacity:0; transform:translateY(30px) scale(.82); filter:blur(10px);
+  animation:bsLetter .8s var(--bs-spring) forwards; animation-delay:calc(.95s + var(--i) * .08s);
+}
+/* "Nexus" — violet -> blue, echoing the logo */
+.bs-word span:nth-child(4){ color:#5b21c9; }
+.bs-word span:nth-child(5){ color:#6a3df5; }
+.bs-word span:nth-child(6){ color:#5f5cf5; }
+.bs-word span:nth-child(7){ color:#4f7cf7; }
+.bs-word span:nth-child(8){ color:#5b9bff; }
+@keyframes bsLetter{
+  0%{ opacity:0; transform:translateY(30px) scale(.82); filter:blur(10px); }
+  60%{ opacity:1; transform:translateY(-5px) scale(1.04); filter:blur(0); }
+  100%{ opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+}
+
+.bs-line{
+  width:0; height:3px; border-radius:3px; margin-top:14px;
+  background:linear-gradient(90deg,rgb(var(--bs-v)),rgb(var(--bs-b)));
+  box-shadow:0 2px 14px rgba(var(--bs-v),.5);
+  animation:bsLine .9s var(--bs-ease) 1.75s forwards;
+}
+@keyframes bsLine{ to{ width:76px; } }
+
+.bs-tag{
+  margin:18px 0 0; font-size:12px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:#57667e;
+  opacity:0; transform:translateY(10px); animation:bsRise .8s var(--bs-ease) 1.95s forwards;
+}
+@keyframes bsRise{ to{ opacity:1; transform:none; } }
+
+.bs-progress{ width:min(240px, 62vw); margin-top:34px; opacity:0; transform:translateY(8px); animation:bsRise .7s var(--bs-ease) 1.2s forwards; }
+.bs-track{ position:relative; height:4px; border-radius:4px; overflow:hidden; background:rgba(13,29,56,.08); }
+.bs-fill{
+  position:absolute; inset:0; border-radius:4px; transform-origin:left center; transform:scaleX(0);
+  background:linear-gradient(90deg,rgb(var(--bs-v)),rgb(var(--bs-b)));
+  box-shadow:0 0 12px rgba(var(--bs-v),.55);
+}
+.bs-fill::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent);
+  transform:translateX(-100%); animation:bsSheen 1.3s ease-in-out infinite;
+}
+@keyframes bsSheen{ to{ transform:translateX(100%); } }
+.bs-meta{ display:flex; justify-content:space-between; margin-top:11px; font-size:11.5px; color:#57667e; letter-spacing:.02em; }
+.bs-pct{ font-family:'JetBrains Mono',monospace; font-variant-numeric:tabular-nums; color:#0b1526; }
+
+/* ---------- hand-off into the landing page ---------- */
+body.splash-fly .hero-logo-mark{ opacity:1; }   /* fades in under the gliding logo; float starts on landing */
+body.splash-fly .hero-head{ animation:bsHeroEnter 1s var(--ease) .2s backwards; }
+@keyframes bsHeroEnter{ from{ opacity:0; transform:translateY(30px); } }
+
+@media (max-width:480px){
+  .bs-tag{ letter-spacing:.16em; font-size:11px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .bs-blob, .bs-ring-dash, .bs-orbit, .bs-comet, .bs-pulse, .bs-aura, .bs-logo, .bs-fill::after{ animation:none !important; }
+  .bs-logo, .bs-blob, .bs-aura, .bs-ring-dash, .bs-ring-thin, .bs-comet, .bs-orbit{ opacity:1 !important; }
+  .bs-pulse{ display:none; }
+  .bs-word span, .bs-tag, .bs-progress{ opacity:1 !important; transform:none !important; filter:none !important; animation:none !important; }
+  .bs-line{ width:76px; animation:none !important; }
+}
+
 </style>
 </head>
 <body>
 
-<div class="page-loader" id="pageLoader" aria-hidden="true"><img src="assets/brand/logo-mark.png" alt="" class="page-loader-mark"></div>
+<!-- ===== A2ZNexus brand splash (first-load intro) ===== -->
+<noscript><style>.brand-splash{display:none !important;}</style></noscript>
+<div class="brand-splash" id="brandSplash" role="status" aria-live="polite" aria-label="Loading A2ZNexus">
+  <div class="bs-backdrop" aria-hidden="true">
+    <span class="bs-blob b1"></span>
+    <span class="bs-blob b2"></span>
+    <span class="bs-blob b3"></span>
+  </div>
+
+  <div class="bs-stage">
+    <div class="bs-emblem">
+      <div class="bs-fx" aria-hidden="true">
+        <span class="bs-aura"></span>
+        <span class="bs-pulse"></span>
+        <span class="bs-pulse p2"></span>
+        <span class="bs-ring-thin"></span>
+        <span class="bs-ring-dash"></span>
+        <span class="bs-comet"></span>
+        <span class="bs-orbit"><i></i><i></i></span>
+      </div>
+      <div class="bs-logo-fly" id="bsLogoFly">
+        <img class="bs-logo" src="assets/brand/logo-mark.png" alt="">
+      </div>
+    </div>
+
+    <div class="bs-info">
+      <div class="bs-word" role="img" aria-label="A2ZNexus">
+        <span style="--i:0" aria-hidden="true">A</span><span style="--i:1" aria-hidden="true">2</span><span style="--i:2" aria-hidden="true">Z</span><span style="--i:3" aria-hidden="true">N</span><span style="--i:4" aria-hidden="true">e</span><span style="--i:5" aria-hidden="true">x</span><span style="--i:6" aria-hidden="true">u</span><span style="--i:7" aria-hidden="true">s</span>
+      </div>
+      <div class="bs-line" aria-hidden="true"></div>
+      <p class="bs-tag">One Agent. Infinite Possibilities.</p>
+
+      <div class="bs-progress" aria-hidden="true">
+        <div class="bs-track"><div class="bs-fill" id="bsFill"></div></div>
+        <div class="bs-meta"><span id="bsStatus">Initializing workspace</span><span class="bs-pct" id="bsPct">0%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+/* ---------- A2ZNexus splash controller (index.html, first load only) ----------
+   Shows logo + name + loading bar, waits until the page is really ready, then
+   the logo glides into the hero logo spot and the landing page reveals.
+   Skipped when the visitor arrives from another page of the site (e.g. the
+   "Back to A2ZNexus" link on the login page). */
+(function(){
+  var root = document.documentElement;
+  var body = document.body;
+  var splash = document.getElementById('brandSplash');
+  if(!splash || root.classList.contains('no-splash')){
+    body.classList.add('loaded');            /* no splash: reveal hero logo as before */
+    return;
+  }
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DUR    = reduce ? 500 : 3000;          /* how long the loading bar takes */
+  var fill   = document.getElementById('bsFill');
+  var pctEl  = document.getElementById('bsPct');
+  var stEl   = document.getElementById('bsStatus');
+  var msgs   = [[0,'Initializing workspace'],[30,'Connecting AI agents'],[65,'Preparing your experience'],[100,'Welcome']];
+  var loaded = document.readyState === 'complete';
+  var start  = performance.now();
+  var lastMsg = '';
+  root.classList.add('splash-lock');           /* no scrolling while the intro plays */
+  window.addEventListener('load', function(){ loaded = true; });
+  setTimeout(function(){ loaded = true; }, 7000);   /* safety net: never hang */
+
+  function render(p){
+    var pc = Math.round(p * 100);
+    fill.style.transform = 'scaleX(' + p + ')';
+    pctEl.textContent = pc + '%';
+    var m = msgs[0][1];
+    for(var i = 0; i < msgs.length; i++){ if(pc >= msgs[i][0]) m = msgs[i][1]; }
+    if(m !== lastMsg){ stEl.textContent = m; lastMsg = m; }
+  }
+
+  function done(delay){
+    setTimeout(function(){
+      splash.classList.add('gone');
+      root.classList.remove('splash-lock');
+      body.classList.add('loaded');
+    }, delay);
+  }
+
+  function exit(){
+    var fly    = document.getElementById('bsLogoFly');
+    var target = document.querySelector('.hero-logo-mark');
+    var b = target ? target.getBoundingClientRect() : null;
+    var visible = b && b.width > 0 && b.bottom > 0 && b.top < window.innerHeight;
+
+    splash.classList.add('leaving');
+    if(reduce || !fly || !visible){
+      if(!reduce) body.classList.add('splash-fly');
+      done(reduce ? 200 : 900);
+      return;
+    }
+    var a  = fly.getBoundingClientRect();
+    var dx = (b.left + b.width  / 2) - (a.left + a.width  / 2);
+    var dy = (b.top  + b.height / 2) - (a.top  + a.height / 2);
+    var s  = b.width / a.width;
+    body.classList.add('splash-fly');
+    fly.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')';
+    done(980);                                  /* logo has landed on the hero logo */
+  }
+
+  function tick(now){
+    var t = Math.min(1, (now - start) / DUR);
+    var e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;   /* ease-in-out */
+    var p = Math.min(e, loaded ? 1 : .92);
+    render(p);
+    if(p >= 1){ setTimeout(exit, reduce ? 0 : 420); return; }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+
 
 <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
 <div class="field"></div>
@@ -971,39 +1279,10 @@ body.loaded .hero-logo-mark{animation-play-state:running;opacity:1;}
 (function(){
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- initial page-load preloader (single floating logo) ----------
-     Hides as soon as the page's resources are actually ready, instead of a
-     fixed wait. A short minimum keeps it from flashing on fast loads, and a
-     safety-net cap makes sure it never gets stuck if 'load' is delayed. */
-  var pageLoader = document.getElementById('pageLoader');
-  if(pageLoader){
-    var loaderStart = Date.now();
-    var minShow = reduced ? 0 : 900;
-    var maxWait = reduced ? 400 : 3000;
-    var loaderDone = false;
-    var hideLoader = function(){
-      if(loaderDone) return;
-      loaderDone = true;
-      var wait = Math.max(0, minShow - (Date.now() - loaderStart));
-      setTimeout(function(){
-        pageLoader.classList.add('done');
-        /* wait for the loader's own fade-out (.5s) to almost finish before
-           revealing the hero content — otherwise the small loader logo and
-           the big hero logo cross-fade on top of each other (overlap). */
-        setTimeout(function(){
-          document.body.classList.add('loaded');
-        }, reduced ? 0 : 420);
-      }, wait);
-    };
-    if(document.readyState === 'complete'){
-      hideLoader();
-    } else {
-      window.addEventListener('load', hideLoader);
-    }
-    setTimeout(hideLoader, maxWait);
-  } else {
-    document.body.classList.add('loaded');
-  }
+  /* ---------- brand splash hand-off ----------
+     The splash (top of <body>) adds body.loaded when the logo lands on the
+     hero. This is only a safety net in case it could not run. */
+  setTimeout(function(){ document.body.classList.add('loaded'); }, 9000);
 
   /* ---------- magnetic buttons ---------- */
   if(!reduced){
