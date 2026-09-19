@@ -4,8 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>
-/* skip the brand splash when arriving from another page of this site (e.g. "Back to A2ZNexus" on login) */
-(function(){try{var r=document.referrer;if(r){var u=new URL(r);if(u.origin===location.origin&&u.pathname!==location.pathname){document.documentElement.classList.add('no-splash');}}}catch(e){}})();
+/* smooth page-to-page navigation (index <-> login): detect an arrival from another page of this site */
+(function(){
+  var d=document.documentElement, internal=false;
+  var vt=(typeof CSSViewTransitionRule!=='undefined')&&location.protocol!=='file:';
+  try{ if(sessionStorage.getItem('a2z_nav')){ sessionStorage.removeItem('a2z_nav'); internal=true; } }catch(e){}
+  try{ var r=document.referrer; if(r){ var u=new URL(r); if(u.origin===location.origin&&u.pathname!==location.pathname) internal=true; } }catch(e){}
+  if(internal){ d.classList.add('no-splash'); if(!vt) d.classList.add('a2z-arrive'); }
+})();
 </script>
 <title>A2ZNexus — One Agent. Infinite Possibilities.</title>
 <link rel="icon" type="image/png" href="assets/brand/logo-mark.png">
@@ -674,6 +680,29 @@ body.splash-fly .hero-head{ animation:bsHeroEnter 1s var(--ease) .2s backwards; 
   .bs-line{ width:76px; animation:none !important; }
 }
 
+
+/* ============================================================
+   SMOOTH PAGE TRANSITION  (index <-> login) — no loader, no logo
+   Going into login  : the page you leave grows away, login settles in.
+   Coming back       : login shrinks away, index settles back in.
+   Uses the browser's cross-document View Transitions; browsers that
+   don't support them get a soft fade instead.
+   ============================================================ */
+@view-transition{ navigation:auto; }
+::view-transition-old(root){ animation:a2zPageOut .5s cubic-bezier(.4,0,.6,1) both; }
+::view-transition-new(root){ animation:a2zPageIn .8s cubic-bezier(.16,.84,.32,1) .1s both; }
+@keyframes a2zPageOut{ to{ opacity:0; transform:scale(1.06); } }
+@keyframes a2zPageIn{ from{ opacity:0; transform:scale(.95); } }
+
+/* fallback (no View Transitions support / file://) */
+html.a2z-leave body{ opacity:0; transition:opacity .32s ease; }
+html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwards; }
+@keyframes a2zFadeIn{ from{ opacity:0; } }
+
+@media (prefers-reduced-motion: reduce){
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*){ animation:none !important; }
+  html.a2z-arrive body{ animation:none; }
+}
 </style>
 </head>
 <body>
@@ -1434,9 +1463,26 @@ body.splash-fly .hero-head{ animation:bsHeroEnter 1s var(--ease) .2s backwards; 
   }, {threshold:0.4});
   if(matchCard) io2.observe(matchCard);
 
-  /* ---------- page transition to login.html ----------
-     no overlay/loading effect here anymore — clicking these links
-     just navigates straight to login.html normally. */
+  /* ---------- smooth page transition (no loader) ----------
+     Browsers with View Transitions animate the navigation themselves.
+     Others: a short fade-out here + a fade-in on the next page. */
+  (function(){
+    var d = document.documentElement;
+    var vt = (typeof CSSViewTransitionRule !== 'undefined') && location.protocol !== 'file:';
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.addEventListener('pageshow', function(e){ if(e.persisted) d.classList.remove('a2z-leave'); });
+    if(vt || reduce) return;
+    document.querySelectorAll('[data-transition]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        var href = a.getAttribute('href');
+        if(!href || href.charAt(0) === '#' || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        try{ sessionStorage.setItem('a2z_nav', '1'); }catch(err){}
+        d.classList.add('a2z-leave');
+        setTimeout(function(){ window.location.href = href; }, 320);
+      });
+    });
+  })();
 
   /* ---------- hero logo subtle mouse parallax ---------- */
   var visual = document.querySelector('.hero-visual');
