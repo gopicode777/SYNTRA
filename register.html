@@ -13,10 +13,10 @@
   if(internal){  if(!vt) d.classList.add('a2z-arrive'); }
 })();
 </script>
-<title>A2ZNexus — Sign in</title>
+<title>A2ZNexus — Sign up</title>
 <link rel="icon" type="image/png" href="assets/brand/logo-mark.png">
 <link rel="apple-touch-icon" href="assets/brand/logo-mark.png">
-<meta name="description" content="Sign in to your A2ZNexus AI workspace." />
+<meta name="description" content="Create your A2ZNexus AI workspace account." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -2088,8 +2088,8 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
     <section class="auth-panel">
       <form class="auth-card" id="authForm" novalidate>
         <div class="stagger">
-          <h1 class="auth-heading">Welcome back.</h1>
-          <p class="auth-sub">Your AI workspace is waiting.</p>
+          <h1 class="auth-heading">Create your account.</h1>
+          <p class="auth-sub">Start building with A2ZNexus.</p>
 
           <div class="social-row">
             <button type="button" class="social-btn" id="googleBtn">
@@ -2102,9 +2102,16 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
             </button>
           </div>
 
-          <div class="divider">or sign in with email</div>
+          <div class="divider">or sign up with email</div>
 
           <div class="error-banner" id="errorBanner" role="alert"></div>
+
+          <div class="field">
+            <label for="fullname">Full name</label>
+            <div class="field-input-wrap">
+              <input type="text" id="fullname" name="fullname" autocomplete="name" placeholder="Your name" required />
+            </div>
+          </div>
 
           <div class="field">
             <label for="email">Email address</label>
@@ -2116,7 +2123,7 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
           <div class="field">
             <label for="password">Password</label>
             <div class="field-input-wrap">
-              <input type="password" id="password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+              <input type="password" id="password" name="password" autocomplete="new-password" placeholder="••••••••" required />
               <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" aria-pressed="false">
                 <svg id="pwIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                   <path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"/>
@@ -2126,18 +2133,21 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
             </div>
           </div>
 
-          <div class="row-between">
-            <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+          <div class="field">
+            <label for="confirmPassword">Confirm password</label>
+            <div class="field-input-wrap">
+              <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" required />
+            </div>
           </div>
 
           <button type="submit" class="submit-btn" id="submitBtn">
-            <span class="btn-label">Log in</span>
+            <span class="btn-label">Create account</span>
             <span class="arrow" aria-hidden="true">→</span>
             <span class="spinner" aria-hidden="true"></span>
           </button>
 
           <div class="signup-row">
-            Don't have an account? <a href="register.html" data-transition>Sign up</a>
+            Already have an account? <a href="login.html" data-transition>Sign in</a>
           </div>
 
           <div class="guest-row">
@@ -2510,8 +2520,10 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
   requestAnimationFrame(tick);
 
   /* ================= FORM WIRING ================= */
+  const fullnameInput = document.getElementById('fullname');
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirmPassword');
   const pwToggle = document.getElementById('pwToggle');
   const pwIcon = document.getElementById('pwIcon');
   const submitBtn = document.getElementById('submitBtn');
@@ -2578,7 +2590,7 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
   }
   wireHoverExpression(googleBtn, STATES.GOOGLE_HOVER);
   wireHoverExpression(microsoftBtn, STATES.MICROSOFT_HOVER);
-  wireHoverExpression(forgotLink, STATES.FORGOT_HOVER);
+  if(forgotLink) wireHoverExpression(forgotLink, STATES.FORGOT_HOVER);
   wireHoverExpression(guestBtn, STATES.GUEST_HOVER);
 
   googleBtn.addEventListener('click', ()=> handleSocialLogin(googleBtn, 'Google'));
@@ -2593,13 +2605,13 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
 
     // Integration point: wire up real OAuth here, e.g.
     //   window.location.href = '/auth/' + provider.toLowerCase();
-    // No backend is connected in this project yet, so the sign-in is
+    // No backend is connected in this project yet, so the sign-up is
     // simulated locally and the person is taken straight into the workspace.
     setTimeout(()=>{
       try{
-        localStorage.setItem('a2z_user', JSON.stringify({provider}));
+        localStorage.setItem('a2z_user', JSON.stringify({name: provider + ' account', provider}));
       } catch(err){ /* localStorage unavailable — safe to ignore */ }
-      onLoginSuccess();
+      onSignupSuccess();
     }, 900);
   }
 
@@ -2614,22 +2626,24 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
     }, 700);
   });
 
-  forgotLink.addEventListener('click', (e)=>{
-    e.preventDefault();
-    forgotModal.classList.add('show');
-    document.getElementById('resetEmail').focus();
-  });
-  modalCancel.addEventListener('click', ()=> forgotModal.classList.remove('show'));
-  forgotModal.addEventListener('click', (e)=>{ if(e.target === forgotModal) forgotModal.classList.remove('show'); });
-  modalSend.addEventListener('click', ()=>{
-    modalSend.textContent = 'Link sent';
-    modalSend.disabled = true;
-    setTimeout(()=>{
-      forgotModal.classList.remove('show');
-      modalSend.textContent = 'Send link';
-      modalSend.disabled = false;
-    }, 1400);
-  });
+  if(forgotLink && forgotModal && modalCancel && modalSend){
+    forgotLink.addEventListener('click', (e)=>{
+      e.preventDefault();
+      forgotModal.classList.add('show');
+      document.getElementById('resetEmail').focus();
+    });
+    modalCancel.addEventListener('click', ()=> forgotModal.classList.remove('show'));
+    forgotModal.addEventListener('click', (e)=>{ if(e.target === forgotModal) forgotModal.classList.remove('show'); });
+    modalSend.addEventListener('click', ()=>{
+      modalSend.textContent = 'Link sent';
+      modalSend.disabled = true;
+      setTimeout(()=>{
+        forgotModal.classList.remove('show');
+        modalSend.textContent = 'Send link';
+        modalSend.disabled = false;
+      }, 1400);
+    });
+  }
 
   function showError(message){
     errorBanner.textContent = message;
@@ -2650,24 +2664,40 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
     e.preventDefault();
     clearError();
 
+    const fullname = fullnameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
     let valid = true;
 
+    if(!fullname){
+      fullnameInput.classList.add('has-error');
+      valid = false;
+    } else {
+      fullnameInput.classList.remove('has-error');
+    }
     if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
       emailInput.classList.add('has-error');
       valid = false;
     } else {
       emailInput.classList.remove('has-error');
     }
-    if(!password){
+    if(!password || password.length < 6){
       passwordInput.classList.add('has-error');
       valid = false;
     } else {
       passwordInput.classList.remove('has-error');
     }
+    if(!confirmPassword || confirmPassword !== password){
+      confirmPasswordInput.classList.add('has-error');
+      valid = false;
+    } else {
+      confirmPasswordInput.classList.remove('has-error');
+    }
     if(!valid){
-      showError('Enter a valid email and your password to continue.');
+      showError(password && confirmPassword && password !== confirmPassword
+        ? 'Those passwords don\u2019t match.'
+        : 'Fill in your name, a valid email, and a password (6+ characters) to continue.');
       return;
     }
 
@@ -2676,26 +2706,25 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
     lockedState = STATES.LOGIN_LOADING;
     setState(STATES.LOGIN_LOADING, {force:true});
 
-    // Integration point: replace with your real authentication call, e.g.
-    //   const res = await fetch('/api/auth/login', {
+    // Integration point: replace with your real account-creation call, e.g.
+    //   const res = await fetch('/api/auth/register', {
     //     method: 'POST',
     //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ email, password })
+    //     body: JSON.stringify({ fullname, email, password })
     //   });
-    //   if(!res.ok) throw new Error('invalid_credentials');
+    //   if(!res.ok) throw new Error('signup_failed');
     //   const data = await res.json();
-    //   onLoginSuccess(data);
+    //   onSignupSuccess(data);
     //
-    // No backend is connected in this project yet, so the sign-in is
+    // No backend is connected in this project yet, so the account is
     // simulated locally and the person is taken straight into the workspace.
     try{
-      localStorage.setItem('a2z_user', JSON.stringify({email}));
+      localStorage.setItem('a2z_user', JSON.stringify({name: fullname, email}));
     } catch(err){ /* localStorage unavailable — safe to ignore */ }
-    setTimeout(()=> onLoginSuccess(), 700);
+    setTimeout(()=> onSignupSuccess(), 700);
   });
 
-  // Example of how a real success path would be wired once a backend responds:
-  function onLoginSuccess(){
+  function onSignupSuccess(){
     lockedState = STATES.LOGIN_SUCCESS;
     setState(STATES.LOGIN_SUCCESS, {force:true});
     successOverlay.classList.add('show');
@@ -2703,7 +2732,7 @@ html.a2z-arrive body{ animation:a2zFadeIn .7s cubic-bezier(.16,.84,.32,1) backwa
       window.location.href = 'workspace.html';
     }, 1400);
   }
-  window.__A2ZNexusOnLoginSuccess = onLoginSuccess; // exposed for backend integration
+  window.__A2ZNexusOnSignupSuccess = onSignupSuccess; // exposed for backend integration
 
   /* ================= BACKGROUND PARTICLE FIELD ================= */
   const bgCanvas = document.getElementById('bg-canvas');

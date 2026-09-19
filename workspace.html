@@ -53,9 +53,11 @@ body{margin:0;font-family:var(--font);background:var(--bg-1);color:var(--ink-0);
 button{font-family:inherit;}
 a{color:inherit;text-decoration:none;}
 ::selection{background:var(--accent-a-soft);}
-::-webkit-scrollbar{width:8px;height:8px;}
-::-webkit-scrollbar-thumb{background:rgba(120,140,170,.28);border-radius:99px;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:rgba(120,140,170,.45);border-radius:99px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-thumb:hover{background:rgba(120,140,170,.65);background-clip:padding-box;}
 ::-webkit-scrollbar-track{background:transparent;}
+html{scrollbar-width:thin;scrollbar-color:rgba(120,140,170,.45) transparent;}
 :focus-visible{outline:2px solid var(--accent-a);outline-offset:2px;border-radius:6px;}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}}
 svg.ic{width:17px;height:17px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;flex:none;}
@@ -148,8 +150,8 @@ svg.ic{width:17px;height:17px;stroke:currentColor;stroke-width:1.75;fill:none;st
 .topbar-right{display:flex;align-items:center;gap:6px;flex:none;}
 
 .pages{flex:1;overflow:hidden;position:relative;}
-.page{position:absolute;inset:0;overflow-y:auto;padding:22px 26px 40px;opacity:0;visibility:hidden;transition:opacity var(--med) var(--ease);}
-.page.active{position:relative;opacity:1;visibility:visible;}
+.page{position:absolute;inset:0;overflow-y:auto;padding:22px 26px 40px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--med) var(--ease);}
+.page.active{opacity:1;visibility:visible;pointer-events:auto;z-index:1;}
 
 /* ---------------- HOME ---------------- */
 .home-surface{max-width:760px;margin:0 auto;background:var(--surface-grad);border:1px solid var(--panel-border);border-radius:var(--r-xl);box-shadow:var(--shadow-md);padding:38px 34px 30px;position:relative;overflow:hidden;}
@@ -219,8 +221,10 @@ svg.ic{width:17px;height:17px;stroke:currentColor;stroke-width:1.75;fill:none;st
 .msg-block{align-self:flex-start;max-width:92%;width:100%;}
 .exec-card{background:var(--panel);border:1px solid var(--panel-border);border-radius:var(--r-lg);padding:16px 18px;box-shadow:var(--shadow-sm);}
 .exec-head{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:600;font-size:13.6px;margin-bottom:12px;}
-.exec-head .s-dot{width:20px;height:20px;border-radius:6px;background:linear-gradient(155deg,#8f6bff,#8b7ff2);display:flex;align-items:center;justify-content:center;flex:none;}
+.exec-head .s-dot{width:20px;height:20px;border-radius:6px;background:linear-gradient(155deg,#8f6bff,#8b7ff2);display:flex;align-items:center;justify-content:center;flex:none;transition:background .3s ease;}
 .exec-head .s-dot svg{width:11px;height:11px;stroke:#fff;stroke-width:2.4;}
+.exec-head .s-dot.done{background:linear-gradient(155deg,#34c78e,#2fb37f);}
+.exec-head .h-text{transition:color .3s ease;}
 .exec-step{display:flex;align-items:flex-start;gap:11px;padding:8px 0;position:relative;}
 .exec-step:not(:last-child)::before{content:"";position:absolute;left:9.5px;top:26px;bottom:-8px;width:1px;background:var(--panel-border);}
 .step-mark{width:20px;height:20px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:background var(--fast),color var(--fast);}
@@ -241,6 +245,13 @@ svg.ic{width:17px;height:17px;stroke:currentColor;stroke-width:1.75;fill:none;st
 .typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--ink-3);animation:pulseDot 1s ease-in-out infinite;}
 .typing-dots span:nth-child(2){animation-delay:.15s;}
 .typing-dots span:nth-child(3){animation-delay:.3s;}
+
+/* ---------------- THINK LINE (single line, updates in place, then fades once answer is ready) ---------------- */
+.think-line{display:flex;align-items:center;gap:9px;font-size:13.6px;color:var(--ink-0);font-weight:600;padding:2px 0 12px;transition:opacity .3s ease,max-height .3s ease,padding .3s ease,margin .3s ease;overflow:hidden;max-height:40px;}
+.think-line .t-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-a);flex:none;animation:pulseDot 1s ease-in-out infinite;}
+.think-line .t-text{display:inline-block;animation:thinkTextIn .3s ease;}
+@keyframes thinkTextIn{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:translateY(0);}}
+.think-line.think-done{opacity:0;max-height:0;padding-top:0;padding-bottom:0;margin:0;}
 
 .chat-composer-wrap{position:sticky;bottom:0;background:linear-gradient(180deg, transparent, var(--bg-1) 30%);padding-top:14px;margin-top:6px;}
 
@@ -1354,72 +1365,109 @@ const ChatEngine = (function(){
     const did = steps.filter(s=>!['understand','plan','create'].includes(s)).map(s=>STEP_LIB[s].title.toLowerCase());
     return `<p>Here's the result for "${text}". A2ZNexus coordinated ${did.join(', ')} to get here, pulling in the relevant capabilities automatically rather than asking you to switch tools.</p><p>The output has been saved to this project and is ready in <strong>Files</strong> — you can ask a follow-up here to refine it, or start a new goal from Home.</p>`;
   }
+  let queue = [];
+  let busy = false;
+
   function run(userText){
+    // The user's own message should appear immediately, even if a
+    // previous goal is still being worked on.
     const thread = document.getElementById('chatThread');
     document.getElementById('chatEmptyState')?.remove();
+    const scroller = thread.closest('.page');
 
     const userBubble = document.createElement('div');
     userBubble.className = 'msg-user';
     userBubble.textContent = userText;
     thread.appendChild(userBubble);
+    if(scroller) scroller.scrollTop = scroller.scrollHeight;
+
+    History.add(userText);
+    queue.push(userText);
+    processQueue();
+  }
+
+  function processQueue(){
+    if(busy || queue.length === 0) return;
+    busy = true;
+    const userText = queue.shift();
+    executeGoal(userText, () => {
+      busy = false;
+      processQueue(); // move on to the next queued message, one at a time
+    });
+  }
+
+  function executeGoal(userText, onDone){
+    const thread = document.getElementById('chatThread');
+    // #chatThread itself never scrolls — its ancestor .page does. Scrolling
+    // #chatThread directly was a no-op, which is why new replies never
+    // came into view on their own.
+    const scroller = thread.closest('.page');
+    function scrollToBottom(force){
+      if(!scroller) return;
+      const nearBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 120;
+      if(force || nearBottom) scroller.scrollTop = scroller.scrollHeight;
+    }
 
     const block = document.createElement('div');
     block.className = 'msg-block';
     const steps = planFor(userText);
     block.innerHTML = `<div class="exec-card">
-      <div class="exec-head"><div class="s-dot">${Icons.get('spark')}</div>A2ZNexus is executing this goal</div>
-      <div class="exec-steps">
-        ${steps.map((s,i)=>`
-          <div class="exec-step" data-step-index="${i}">
-            <div class="step-mark pending" id="mark-${block === null ? '' : ''}"></div>
-            <div class="step-body"><div class="step-title pending">${STEP_LIB[s].title}</div><div class="step-sub pending">Queued</div></div>
-          </div>`).join('')}
-      </div>
+      <div class="exec-head"><div class="s-dot">${Icons.get('spark')}</div><span class="h-text">A2ZNexus is working on this</span></div>
+      <div class="think-line"><span class="t-dot"></span><span class="t-text"></span></div>
       <div class="exec-answer hidden"></div>
     </div>`;
     thread.appendChild(block);
-    thread.scrollTop = thread.scrollHeight;
+    scrollToBottom(true); // a message the person just sent should always bring them to it
 
     Data.activity.push({title:`Goal started: "${userText.slice(0,40)}${userText.length>40?'…':''}"`, time:'Just now'});
     Render.activity();
     setAgent('A2ZNexus Core', 'working', 'Orchestrating');
 
-    const stepEls = block.querySelectorAll('.exec-step');
+    // A single line that updates itself in place, one stage at a time,
+    // instead of stacking a new line for every step.
+    const line = block.querySelector('.think-line');
+    const lineText = line.querySelector('.t-text');
+    function setLineText(text){
+      lineText.classList.remove('t-text');
+      void lineText.offsetWidth; // restart the fade-in animation
+      lineText.classList.add('t-text');
+      lineText.textContent = text;
+    }
+
     steps.forEach((s, i) => {
       setTimeout(() => {
-        const mark = stepEls[i].querySelector('.step-mark');
-        const title = stepEls[i].querySelector('.step-title');
-        const sub = stepEls[i].querySelector('.step-sub');
-        mark.className = 'step-mark active';
-        mark.innerHTML = '<span class="step-dot-pulse"></span>';
-        title.className = 'step-title'; sub.className = 'step-sub';
-        sub.textContent = 'Working…';
+        setLineText(`${STEP_LIB[s].title}…`);
         agentForStep(s, 'working');
+        scrollToBottom();
+
         setTimeout(() => {
-          mark.className = 'step-mark done';
-          mark.innerHTML = Icons.get('check').replace('class="ic"','style="stroke:currentColor;width:11px;height:11px;"');
-          sub.textContent = STEP_LIB[s].sub(userText);
+          setLineText(STEP_LIB[s].sub(userText));
           agentForStep(s, 'done');
           Data.activity.push({title:`${STEP_LIB[s].title} complete`, time:'Just now'});
           Render.activity();
           if(i === steps.length - 1){
+            // done thinking — fade the line away and leave only the answer
+            line.classList.add('think-done');
+            const headDot = block.querySelector('.exec-head .s-dot');
+            const headText = block.querySelector('.exec-head .h-text');
+            headDot.classList.add('done');
+            headDot.innerHTML = Icons.get('check');
+            headText.textContent = 'A2ZNexus completed this goal';
             const ans = block.querySelector('.exec-answer');
             ans.classList.remove('hidden');
             ans.innerHTML = `<div class="typing-dots"><span></span><span></span><span></span></div>`;
             setTimeout(() => {
               ans.innerHTML = answerFor(userText, steps);
-              thread.scrollTop = thread.scrollHeight;
+              scrollToBottom();
               setAgent('A2ZNexus Core', 'ready', 'Idle — waiting on a goal');
               Notifications.push({icon:'workflow', title:'Task completed', desc:`A2ZNexus finished: "${userText.slice(0,48)}${userText.length>48?'…':''}"`, time:'Just now'});
               Toast.show('Task completed');
+              onDone(); // only now is the next queued message allowed to start
             }, 900);
           }
         }, 900 + Math.random()*500);
-        thread.scrollTop = thread.scrollHeight;
       }, i * 1300);
     });
-
-    History.add(userText);
   }
   function agentForStep(stepKey, status){
     const map = {research:'Research Agent', data:'Data Agent', documents:'Data Agent', create:'Create Agent', code:'Code Agent', images:'Create Agent', automation:'Automation Agent'};
